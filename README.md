@@ -113,7 +113,7 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ## Credits
 
-Built by [ShipPrompt](https://shipprompt.com). Based on the 9 context engineering techniques from the ShipPrompt prompt generator.
+Built by [ShipPrompt](https://silvesterdivas.github.io/shipprompt/). Based on the 9 context engineering techniques from the ShipPrompt prompt generator.
 
 ## License
 
