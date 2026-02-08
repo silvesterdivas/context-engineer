@@ -1,0 +1,11 @@
+{
+  "name": "context-engineer-marketplace",
+  "owner": { "name": "ShipPrompt" },
+  "plugins": [
+    {
+      "name": "context-engineer",
+      "source": ".",
+      "description": "9 context engineering techniques for Claude Code"
+    }
+  ]
+}
