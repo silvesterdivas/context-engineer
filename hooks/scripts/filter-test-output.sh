@@ -1,45 +1,43 @@
-#!/usr/bin/env bash
-# filter-test-output.sh — Filters verbose test output to keep only failures + summary.
-# Saves ~80% of tokens on test runs.
-# Triggered as a PostToolUse hook on Bash commands.
-
-set -euo pipefail
+#!/bin/bash
+# Token-saving filter for test runner output (npm test, jest, pytest, vitest, etc.)
+# Reduces verbose test output to failures + summary only.
 
 INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""')
 
-# Extract the command that was run
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
-if [ -z "$COMMAND" ]; then
+# Only filter test commands
+case "$COMMAND" in
+  *"npm test"*|*"npx jest"*|*"npx vitest"*|*"pytest"*|*"go test"*|*"cargo test"*|*"npm run test"*)
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+
+# Skip short output (< 30 lines) — not worth filtering
+LINE_COUNT=$(echo "$RESPONSE" | wc -l | tr -d ' ')
+if [ "$LINE_COUNT" -lt 30 ]; then
   exit 0
 fi
 
-# Only process test commands
-if ! echo "$COMMAND" | grep -qiE '(npm test|npx (jest|vitest)|yarn test|pnpm test|pytest|python -m pytest|swift test|go test|cargo test|bundle exec rspec|mix test|dart test|flutter test)'; then
-  exit 0
+# Extract failures and summary lines
+FAILURES=$(echo "$RESPONSE" | grep -E "FAIL|✕|✗|FAILED|Error:|error TS|AssertionError|Expected|Received|●" | head -30)
+SUMMARY=$(echo "$RESPONSE" | grep -E "Tests:|Test Suites:|passed|failed|Ran [0-9]|[0-9]+ (passed|failed)|PASS|FAIL" | tail -5)
+
+# Build filtered output
+FILTERED=""
+[ -n "$FAILURES" ] && FILTERED="$FAILURES"
+[ -n "$SUMMARY" ] && FILTERED="${FILTERED:+$FILTERED
+---
+}$SUMMARY"
+
+# If we captured something, return filtered version
+if [ -n "$FILTERED" ]; then
+  jq -n --arg filtered "$FILTERED" --arg lines "$LINE_COUNT" '{
+    suppressOutput: true,
+    message: ("[token-saving] Test output filtered: " + $lines + " lines → summary\n" + $filtered)
+  }'
 fi
 
-# Extract the tool result
-RESULT=$(echo "$INPUT" | jq -r '.tool_result // empty' 2>/dev/null)
-if [ -z "$RESULT" ]; then
-  exit 0
-fi
-
-# Skip filtering for short output (< 40 lines)
-LINE_COUNT=$(echo "$RESULT" | wc -l | tr -d ' ')
-if [ "$LINE_COUNT" -lt 40 ]; then
-  exit 0
-fi
-
-# Filter: keep FAIL, ERROR, FAILED, panic, summary lines
-FILTERED=$(echo "$RESULT" | grep -iE '(FAIL|ERROR|FAILED|panic|✗|✘|×|BROKEN|Tests:|test result:|Test Suites:|Tests run:|Ran [0-9]+ test|passed|failed|skipped|[0-9]+ (passing|failing|pending)|PASS$|assert|Expected|Received|at .*:[0-9]+)' | head -100)
-
-# If nothing matched (all tests passed), provide a short summary
-if [ -z "$FILTERED" ]; then
-  PASS_COUNT=$(echo "$RESULT" | grep -ciE '(pass|✓|✔|ok)' || echo "0")
-  FILTERED="All tests passed. ($PASS_COUNT passing indicators found in $LINE_COUNT lines of output)"
-fi
-
-# Output the filtered result as a system message
-jq -n --arg msg "[test-filter] Filtered $LINE_COUNT lines → $(echo "$FILTERED" | wc -l | tr -d ' ') lines:
-$FILTERED" \
-  '{"systemMessage": $msg}'
+exit 0

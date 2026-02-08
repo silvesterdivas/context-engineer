@@ -1,44 +1,43 @@
-#!/usr/bin/env bash
-# filter-lint-output.sh — Filters verbose lint output to keep only problems.
-# Saves ~70% of tokens on lint runs.
-# Triggered as a PostToolUse hook on Bash commands.
-
-set -euo pipefail
+#!/bin/bash
+# Token-saving filter for linter output (eslint, prettier, stylelint, etc.)
+# Reduces verbose lint output to error count + top issues only.
 
 INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
+RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""')
 
-# Extract the command that was run
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
-if [ -z "$COMMAND" ]; then
+# Only filter lint commands
+case "$COMMAND" in
+  *"npm run lint"*|*"npx eslint"*|*"npx prettier"*|*"stylelint"*|*"pylint"*|*"flake8"*|*"clippy"*)
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+
+# Skip short output
+LINE_COUNT=$(echo "$RESPONSE" | wc -l | tr -d ' ')
+if [ "$LINE_COUNT" -lt 30 ]; then
   exit 0
 fi
 
-# Only process lint commands
-if ! echo "$COMMAND" | grep -qiE '(eslint|npx eslint|biome (check|lint)|swiftlint|pylint|flake8|clippy|cargo clippy|rubocop|golangci-lint|ktlint|stylelint|prettier --check|tslint)'; then
-  exit 0
+# Extract error lines (file:line:col pattern) and summary
+ISSUES=$(echo "$RESPONSE" | grep -E "error|warning" | grep -E "^\s*/|^\s*[0-9]+:" | head -15)
+SUMMARY=$(echo "$RESPONSE" | grep -E "✖|problems?|errors?.*warnings?|[0-9]+ error|All files pass" | tail -3)
+
+# Build filtered output
+FILTERED=""
+[ -n "$ISSUES" ] && FILTERED="Top issues:
+$ISSUES"
+[ -n "$SUMMARY" ] && FILTERED="${FILTERED:+$FILTERED
+---
+}$SUMMARY"
+
+if [ -n "$FILTERED" ]; then
+  jq -n --arg filtered "$FILTERED" --arg lines "$LINE_COUNT" '{
+    suppressOutput: true,
+    message: ("[token-saving] Lint output filtered: " + $lines + " lines → summary\n" + $filtered)
+  }'
 fi
 
-# Extract the tool result
-RESULT=$(echo "$INPUT" | jq -r '.tool_result // empty' 2>/dev/null)
-if [ -z "$RESULT" ]; then
-  exit 0
-fi
-
-# Skip filtering for short output (< 40 lines)
-LINE_COUNT=$(echo "$RESULT" | wc -l | tr -d ' ')
-if [ "$LINE_COUNT" -lt 40 ]; then
-  exit 0
-fi
-
-# Filter: keep problem lines (errors, warnings, file:line references)
-FILTERED=$(echo "$RESULT" | grep -iE '(error|warning|problem|✖|✗|×|[0-9]+ error|[0-9]+ warning|^\s*[0-9]+:[0-9]+|/.*\.[a-z]+:[0-9]+:[0-9]+|^\s*(E|W|C|F)[0-9]+)' | head -100)
-
-# If nothing matched (clean lint), provide a short summary
-if [ -z "$FILTERED" ]; then
-  FILTERED="Lint passed with no issues. ($LINE_COUNT lines of output filtered)"
-fi
-
-# Output the filtered result as a system message
-jq -n --arg msg "[lint-filter] Filtered $LINE_COUNT lines → $(echo "$FILTERED" | wc -l | tr -d ' ') lines:
-$FILTERED" \
-  '{"systemMessage": $msg}'
+exit 0
