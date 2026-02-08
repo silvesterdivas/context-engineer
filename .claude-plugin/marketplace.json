@@ -4,7 +4,7 @@
   "plugins": [
     {
       "name": "context-engineer",
-      "source": ".",
+      "source": "./",
       "description": "9 context engineering techniques for Claude Code"
     }
   ]
