@@ -45,7 +45,7 @@ box_line()   {
   [[ $pad -lt 1 ]] && pad=1
   echo -e "  ${C}│${N} ${text}$(printf ' %.0s' $(seq 1 $pad))${C}│${N}"
 }
-rule() { echo -e "  ${D}$(printf '─%.0s' $(seq 1 $W))${N}"; }
+
 
 check_row() {
   local status="$1" label="$2" detail="$3" dot=""
@@ -63,15 +63,7 @@ check_row() {
   echo -e "  ${dot} ${B}${label}${N}${padding} ${detail}"
 }
 
-bar() {
-  local label="$1" pct="$2" color="$3" bw=20
-  local filled=$((pct * bw / 100))
-  local empty=$((bw - filled))
-  local fill="" emp=""
-  for ((i=0; i<filled; i++)); do fill="${fill}█"; done
-  for ((i=0; i<empty; i++)); do emp="${emp}░"; done
-  printf "  ${D}%-7s${N}${color}%s${D}%s${N}  ${B}~%d%%${N}\n" "$label" "$fill" "$emp" "$pct"
-}
+
 
 # ══════════════════════════════════════════════════════════
 # CHECKS
@@ -226,15 +218,11 @@ echo ""
 box_top
 box_line "${B}context-engineer${N} v${VER}  ${D}·${N}  Health Scorecard"
 box_bottom
-echo ""
-
 check_row "$c1_status" "CLAUDE.md" "$c1_detail"
 check_row "$c2_status" "Token-Saving Hooks" "$c2_detail"
 check_row "$c3_status" "Fresh Context" "$c3_detail"
 check_row "$c4_status" "Git Hygiene" "$c4_detail"
 check_row "$c5_status" "Project Structure" "$c5_detail"
-
-echo ""
 
 # ── Score box ──
 if [[ $FAIL -gt 0 ]]; then
@@ -248,20 +236,7 @@ fi
 box_top
 box_line "${B}Score: ${PASS}/${TOTAL} passing${N}  ${D}·${N}  ${SC}${ST}${N}"
 box_bottom
-echo ""
-
-# ── Token savings ──
-echo -e "  ${D}Token Savings${N}"
-echo ""
-bar "test" 80 "$G"
-bar "build" 90 "$G"
-bar "lint" 70 "$Y"
-echo ""
-
-# ── Footer ──
-rule
-echo -e "  ${D}context-engineer${N}"
-echo ""
+echo -e "  ${D}Tokens saved${N}  test ${G}~80%${N}  build ${G}~90%${N}  lint ${Y}~70%${N}"
 
 # Exit code: 0=all pass, 1=warnings, 2=failures
 if [[ $FAIL -gt 0 ]]; then exit 2
