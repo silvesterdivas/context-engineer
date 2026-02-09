@@ -339,6 +339,50 @@ body::after {
 /* ── Animations ── */
 @keyframes revealDown { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
+/* ── Terminal Preview ── */
+.terminal {
+  margin: 40px -16px 0; border: 1px solid var(--rule); overflow: hidden;
+  animation: revealDown 0.8s var(--ease) 0.3s both;
+}
+.terminal__chrome {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: #1c1f2b; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.terminal__dots { display: flex; gap: 6px; }
+.terminal__dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.terminal__dot--red { background: #ff5f57; }
+.terminal__dot--yellow { background: #febc2e; }
+.terminal__dot--green { background: #28c840; }
+.terminal__title {
+  flex: 1; text-align: center; font-size: 0.6rem; color: #6b7280;
+  font-family: var(--mono); letter-spacing: 0.06em;
+}
+.terminal__body {
+  background: #0f1117; padding: 20px 24px; font-family: var(--mono);
+  font-size: 0.72rem; line-height: 1.9; color: #e5e7eb; overflow-x: auto;
+}
+.terminal__body .t-cyan { color: #22d3ee; }
+.terminal__body .t-green { color: #22c55e; }
+.terminal__body .t-yellow { color: #eab308; }
+.terminal__body .t-dim { color: #6b7280; }
+.terminal__body .t-bold { color: #f3f4f6; font-weight: 700; }
+.terminal__body .t-dot-pass { color: #22c55e; }
+.terminal__body .t-dot-info { color: #6b7280; }
+
+/* Progress bar segments */
+.terminal__bar { display: inline; }
+.terminal__bar--filled { color: #22c55e; }
+.terminal__bar--filled-y { color: #eab308; }
+.terminal__bar--empty { color: #374151; }
+
+/* Staggered line reveal */
+.terminal__line {
+  opacity: 0; animation: termReveal 0.3s var(--ease) forwards;
+}
+@keyframes termReveal { to { opacity: 1; } }
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .page { padding: 64px 20px 60px; }
@@ -352,6 +396,8 @@ body::after {
   .commands-table td:first-child { white-space: normal; }
   .install-section { padding: 20px; }
   .footer { flex-direction: column; text-align: center; }
+  .terminal { margin: 32px -8px 0; }
+  .terminal__body { padding: 16px 14px; font-size: 0.62rem; line-height: 1.8; }
 }
 </style>
 </head>
@@ -368,7 +414,7 @@ body::after {
     <span>active</span>
   </div>
   <div class="status-bar__right">
-    <a href="https://github.com/silvesterdivas" target="_blank" rel="noopener">by Silvester Divas</a>
+    <span>by Silvester Divas</span>
   </div>
 </div>
 
@@ -381,8 +427,44 @@ body::after {
     <p class="header__desc">One plugin. 9 techniques. Zero wasted tokens.</p>
     <div class="header__actions">
       <a href="#install" class="btn">Install Now</a>
-      <a href="https://github.com/silvesterdivas/context-engineer" target="_blank" rel="noopener" class="btn btn--outline">View on GitHub</a>
+      <a href="#techniques" class="btn btn--outline">See What's Inside</a>
     </div>
+
+    <!-- Terminal scorecard preview -->
+    <div class="terminal" id="terminalPreview">
+      <div class="terminal__chrome">
+        <div class="terminal__dots">
+          <span class="terminal__dot terminal__dot--red"></span>
+          <span class="terminal__dot terminal__dot--yellow"></span>
+          <span class="terminal__dot terminal__dot--green"></span>
+        </div>
+        <span class="terminal__title">bash scorecard.sh</span>
+      </div>
+      <div class="terminal__body">
+<div class="terminal__line" style="animation-delay:0.4s"><span class="t-cyan">┌────────────────────────────────────────────────────────────┐</span></div>
+<div class="terminal__line" style="animation-delay:0.5s"><span class="t-cyan">│</span> <span class="t-bold">context-engineer</span> v1.1.0  <span class="t-dim">·</span>  Health Scorecard              <span class="t-cyan">│</span></div>
+<div class="terminal__line" style="animation-delay:0.6s"><span class="t-cyan">└────────────────────────────────────────────────────────────┘</span></div>
+<div class="terminal__line" style="animation-delay:0.7s">&nbsp;</div>
+<div class="terminal__line" style="animation-delay:0.8s"><span class="t-dot-pass">●</span> <span class="t-bold">CLAUDE.md</span>              Budget <span class="t-green">✓</span>  Fresh context <span class="t-green">✓</span>  Tools <span class="t-green">✓</span></div>
+<div class="terminal__line" style="animation-delay:0.9s"><span class="t-dot-pass">●</span> <span class="t-bold">Token-Saving Hooks</span>     test <span class="t-green">✓</span>  build <span class="t-green">✓</span>  lint <span class="t-green">✓</span></div>
+<div class="terminal__line" style="animation-delay:1.0s"><span class="t-dot-info">○</span> <span class="t-bold">Fresh Context</span>          <span class="t-dim">No active handoff files</span></div>
+<div class="terminal__line" style="animation-delay:1.1s"><span class="t-dot-pass">●</span> <span class="t-bold">Git Hygiene</span>            Clean working tree</div>
+<div class="terminal__line" style="animation-delay:1.2s"><span class="t-dot-pass">●</span> <span class="t-bold">Project Structure</span>      All files &lt; 500 lines</div>
+<div class="terminal__line" style="animation-delay:1.3s">&nbsp;</div>
+<div class="terminal__line" style="animation-delay:1.4s"><span class="t-cyan">┌────────────────────────────────────────────────────────────┐</span></div>
+<div class="terminal__line" style="animation-delay:1.5s"><span class="t-cyan">│</span> <span class="t-bold">Score: 4/4 passing</span>  <span class="t-dim">·</span>  <span class="t-green" style="font-weight:700">Your context is engineered.</span>        <span class="t-cyan">│</span></div>
+<div class="terminal__line" style="animation-delay:1.6s"><span class="t-cyan">└────────────────────────────────────────────────────────────┘</span></div>
+<div class="terminal__line" style="animation-delay:1.7s">&nbsp;</div>
+<div class="terminal__line" style="animation-delay:1.8s"><span class="t-dim">Token Savings</span></div>
+<div class="terminal__line" style="animation-delay:1.9s"><span class="t-dim">test   </span><span class="terminal__bar--filled">████████████████</span><span class="terminal__bar--empty">░░░░</span>  <span class="t-bold">~80%</span></div>
+<div class="terminal__line" style="animation-delay:2.0s"><span class="t-dim">build  </span><span class="terminal__bar--filled">██████████████████</span><span class="terminal__bar--empty">░░</span>  <span class="t-bold">~90%</span></div>
+<div class="terminal__line" style="animation-delay:2.1s"><span class="t-dim">lint   </span><span class="terminal__bar--filled-y">██████████████</span><span class="terminal__bar--empty">░░░░░░</span>  <span class="t-bold">~70%</span></div>
+<div class="terminal__line" style="animation-delay:2.2s">&nbsp;</div>
+<div class="terminal__line" style="animation-delay:2.3s"><span class="t-dim">────────────────────────────────────────────────────────────</span></div>
+<div class="terminal__line" style="animation-delay:2.4s"><span class="t-dim">context-engineer</span></div>
+      </div>
+    </div>
+
   </header>
 
   <!-- 01 — The Problem -->
@@ -1013,11 +1095,10 @@ claude plugin install context-engineer@context-engineer-marketplace" onclick="co
     <div class="footer__left">
       <span>context-engineer v1.1.0</span>
       <span>&mdash;</span>
-      <span>Built by <a href="https://github.com/silvesterdivas" target="_blank" rel="noopener">Silvester Divas</a></span>
+      <span>Built by Silvester Divas</span>
     </div>
     <div class="footer__right">
-      <a href="https://github.com/silvesterdivas/context-engineer/blob/main/LICENSE">MIT License</a>
-      <a href="https://github.com/silvesterdivas/context-engineer" target="_blank" rel="noopener">GitHub</a>
+      <span>MIT License</span>
     </div>
   </footer>
 
