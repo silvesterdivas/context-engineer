@@ -9,17 +9,14 @@ Run the visual health scorecard and provide actionable recommendations.
 
 ## Instructions
 
-### Step 1: Find and run the scorecard script
+### Step 1: Run the scorecard script
 
-Use the Glob tool to find the script:
+Run the scorecard using the `CLAUDE_PLUGIN_ROOT` environment variable (set by Claude Code at runtime):
 ```
-Glob: **/context-engineer/scripts/scorecard.sh
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/scorecard.sh" <project-root>
 ```
 
-Then run it with the current project root:
-```
-bash <script-path> <project-root>
-```
+Pass the user's current working directory as `<project-root>`.
 
 The script outputs a formatted terminal scorecard with colored pass/warn/fail indicators, token savings bars, and a score summary.
 
