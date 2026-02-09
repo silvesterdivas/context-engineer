@@ -5,64 +5,45 @@ allowed-tools: Read, Glob, Grep, Bash
 
 # Context Engineering Diagnosis
 
-Run a comprehensive health check on this project's context engineering setup and produce a scorecard.
+Run the visual health scorecard and provide actionable recommendations.
 
 ## Instructions
 
-Check each of the following and assign a status: PASS, WARN, or FAIL.
+### Step 1: Find and run the scorecard script
 
-### 1. CLAUDE.md Configuration
-- **PASS:** CLAUDE.md exists and contains context engineering rules (budget zones, fresh context pattern)
-- **WARN:** CLAUDE.md exists but lacks context engineering rules
-- **FAIL:** No CLAUDE.md found
-- *Fix:* Run `/context-engineer:setup`
-
-### 2. Token-Saving Hooks
-- **PASS:** `hooks/` directory exists with filter scripts (test, build, lint)
-- **WARN:** Some hooks exist but not all three
-- **FAIL:** No token-saving hooks configured
-- *Fix:* Install the context-engineer plugin hooks
-
-### 3. MCP Server Hygiene
-- **PASS:** All configured MCP servers are relevant to this project
-- **WARN:** 1-2 potentially unused MCP servers
-- **FAIL:** 3+ unused MCP servers or >20 total MCP tools
-- *Fix:* Run `/context-engineer:audit-mcp`
-
-### 4. Fresh Context Files
-- **PASS:** TASK.md and/or PROGRESS.md exist (active fresh context pattern)
-- **WARN:** Files exist but are stale (>7 days old)
-- **FAIL:** No fresh context files (not necessarily bad — only needed for complex tasks)
-- *Note:* This is informational, not a hard requirement
-
-### 5. Git Hygiene
-- **PASS:** Clean working tree or small diff (<500 lines)
-- **WARN:** Large uncommitted diff (500-2000 lines)
-- **FAIL:** Very large uncommitted diff (>2000 lines) — risk of context pressure from git operations
-- *Fix:* Commit or stash work in progress
-
-### 6. Project Structure
-- **PASS:** Clear entry points, reasonable file sizes (most <500 lines)
-- **WARN:** Some large files (>500 lines) that may strain context
-- **FAIL:** Many files >1000 lines — refactoring recommended for context efficiency
-- *Fix:* Consider splitting large files
-
-## Output Format
-
+Use the Glob tool to find the script:
 ```
-# Context Engineering Scorecard
-
-| Check                  | Status | Details                          |
-|------------------------|--------|----------------------------------|
-| CLAUDE.md              | ✅/⚠️/❌ | ...                              |
-| Token-Saving Hooks     | ✅/⚠️/❌ | ...                              |
-| MCP Server Hygiene     | ✅/⚠️/❌ | ...                              |
-| Fresh Context Files    | ✅/⚠️/❌ | ...                              |
-| Git Hygiene            | ✅/⚠️/❌ | ...                              |
-| Project Structure      | ✅/⚠️/❌ | ...                              |
-
-Score: X/6 passing
-
-## Recommendations
-[List specific actions to improve, ordered by impact]
+Glob: **/context-engineer/scripts/scorecard.sh
 ```
+
+Then run it with the current project root:
+```
+bash <script-path> <project-root>
+```
+
+The script outputs a formatted terminal scorecard with colored pass/warn/fail indicators, token savings bars, and a score summary.
+
+### Step 2: MCP Server Hygiene (manual check)
+
+The script doesn't check MCP servers — that requires inspecting the system context. Check yourself:
+- Count the number of MCP servers active in this session (visible in the system prompt)
+- Count the total MCP tools available
+- **PASS:** All servers are relevant, total tools < 20
+- **WARN:** 1-2 potentially unused servers
+- **FAIL:** 3+ unused servers or > 20 total tools
+
+Report MCP status as a line after the scorecard output:
+```
+MCP Hygiene: X servers, Y tools — [assessment]
+```
+
+### Step 3: Recommendations
+
+If any checks show WARN or FAIL, list specific fix actions ordered by impact:
+- CLAUDE.md missing → Run `/context-engineer:setup`
+- Hooks missing → Reinstall the plugin
+- Large files → Suggest splitting specific files
+- Git hygiene → Suggest committing or stashing
+- MCP bloat → Run `/context-engineer:audit-mcp`
+
+If all checks pass, just say the project is fully configured — no further action needed.
