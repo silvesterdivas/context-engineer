@@ -21,15 +21,18 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 
 // ── Before/After toggle ──
-document.querySelectorAll('.before-after__tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const container = tab.closest('.before-after');
-    container.querySelectorAll('.before-after__tab').forEach(t => t.classList.remove('active'));
-    container.querySelectorAll('.before-after__panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+const beforeAfterTabs = document.querySelectorAll('.before-after__tab');
+if (beforeAfterTabs.length) {
+  beforeAfterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const container = tab.closest('.before-after');
+      container.querySelectorAll('.before-after__tab').forEach(t => t.classList.remove('active'));
+      container.querySelectorAll('.before-after__panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
   });
-});
+}
 
 // ── Intersection Observer for section reveals ──
 const observer = new IntersectionObserver((entries) => {

@@ -218,7 +218,7 @@ body::after {
 
 /* ── Savings bars ── */
 .savings-list { margin-top: 24px; display: flex; flex-direction: column; gap: 20px; }
-.savings-item {}
+
 .savings-item__header {
   display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
 }
@@ -251,7 +251,7 @@ body::after {
 .step__num {
   font-family: var(--serif); font-size: 1.8rem; font-style: italic; color: var(--amber); line-height: 1;
 }
-.step__content {}
+
 .step__title {
   font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink); margin-bottom: 6px;
 }
