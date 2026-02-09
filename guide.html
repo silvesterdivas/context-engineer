@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide — context-engineer</title>
+<meta name="description" content="Setup guide for context-engineer: new projects, existing projects, budget zones, fresh context, model switching, daily workflow, and troubleshooting.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Scan line -->
+<div class="scan-line" id="scanLine"></div>
+
+<!-- Status bar -->
+<div class="status-bar">
+  <div class="status-bar__left">
+    <span>context-engineer v1.1.0</span>
+    <span class="status-bar__dot"></span>
+    <span>active</span>
+  </div>
+  <div class="status-bar__right">
+    <span>by Silvester Divas</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Guide Header -->
+  <header class="header">
+    <div class="header__eyebrow">Usage Guide</div>
+    <h1 class="header__title">The complete <em>guide.</em></h1>
+    <p class="header__desc">Everything you need to know about setting up and using context-engineer in your projects.</p>
+    <div class="header__actions">
+      <a href="index.html" class="btn btn--outline">&larr; Back to Home</a>
+    </div>
+  </header>
+
+  <!-- 06 — New Projects -->
+  <section class="section" id="new-projects">
+    <div class="section__label">
+      <span class="section__label-num">06</span> New Projects
+    </div>
+    <h2 class="section__title">Starting from scratch.</h2>
+    <p class="section__text">Create your project, run setup, and you're done. Everything activates automatically.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step__num">1</div>
+        <div class="step__content">
+          <div class="step__title">Create your project</div>
+          <div class="step__desc">Initialize a new directory with git. Nothing special required.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Terminal</span></div>
+            <div class="code-block__body"><code><span class="command">mkdir my-new-project && cd my-new-project && git init</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">2</div>
+        <div class="step__content">
+          <div class="step__title">Run setup</div>
+          <div class="step__desc">Creates a CLAUDE.md with budget zones, tool efficiency rules, model switching, and output filtering &mdash; all configured automatically.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:setup</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">3</div>
+        <div class="step__content">
+          <div class="step__title">Verify with a health check</div>
+          <div class="step__desc">Checks CLAUDE.md config, hooks, MCP hygiene, git state, and project structure. Get a pass/warn/fail table with specific fix recommendations.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:diagnose</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">4</div>
+        <div class="step__content">
+          <div class="step__title">Start building</div>
+          <div class="step__desc">Work normally. Tests, builds, and lints are filtered automatically. Budget zones adapt as context fills. You're in GREEN zone &mdash; explore freely, read full files, make architecture decisions with Opus.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; padding: 20px; border: 1px solid var(--rule); background: var(--amber-glow);">
+      <div style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink); margin-bottom: 8px;">Tips for new projects</div>
+      <div style="font-size: 0.72rem; color: var(--text-mid); line-height: 1.8;">
+        <strong>Let Claude explore freely at first.</strong> You're in GREEN zone (&lt; 60% context). Take advantage of full exploration for architecture decisions.<br><br>
+        <strong>Create TASK.md early for complex features.</strong> Run <code style="background:var(--paper-dark); padding:2px 6px; font-size:0.68rem;">/context-engineer:fresh-context "building the auth system"</code> before starting multi-session work. Your progress survives across sessions.
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 — Existing Projects -->
+  <section class="section" id="existing-projects">
+    <div class="section__label">
+      <span class="section__label-num">07</span> Existing Projects
+    </div>
+    <h2 class="section__title">Drop it into any codebase.</h2>
+    <p class="section__text">Already have a project with a CLAUDE.md? Context-engineer fits right in without touching your existing configuration.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step__num">1</div>
+        <div class="step__content">
+          <div class="step__title">Run setup in your project</div>
+          <div class="step__desc">
+            <strong>No CLAUDE.md?</strong> One gets created with the complete rules section.<br>
+            <strong>Existing CLAUDE.md?</strong> Rules are appended. Your content stays untouched.<br>
+            <strong>Already have the rules?</strong> Setup detects it and skips. No duplication.
+          </div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:setup</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">2</div>
+        <div class="step__content">
+          <div class="step__title">Audit your MCP servers</div>
+          <div class="step__desc">Existing projects accumulate MCP servers over time. Each one adds token overhead. Get a table with name, tool count, estimated tokens, and a keep/review/remove recommendation.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:audit-mcp</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">3</div>
+        <div class="step__content">
+          <div class="step__title">Run the health check</div>
+          <div class="step__desc">Pay attention to hook coverage (are they matching your build tools?), CLAUDE.md integration (did rules merge cleanly?), and project structure (any reorganization opportunities?).</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:diagnose</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">4</div>
+        <div class="step__content">
+          <div class="step__title">Keep working &mdash; sessions just got longer</div>
+          <div class="step__desc">Your workflow doesn't change. Sessions that used to die at 45 minutes now last hours. Hooks silently save thousands of tokens per test/build/lint cycle.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; padding: 20px; border: 1px solid var(--rule); background: var(--amber-glow);">
+      <div style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink); margin-bottom: 8px;">Tips for existing projects</div>
+      <div style="font-size: 0.72rem; color: var(--text-mid); line-height: 1.8;">
+        <strong>Watch the budget zones on large codebases.</strong> You'll hit YELLOW and ORANGE faster because there's more code to process. The budget zone skill automatically guides Claude to be more selective.<br><br>
+        <strong>Use fresh context for big refactors.</strong> Run <code style="background:var(--paper-dark); padding:2px 6px; font-size:0.68rem;">/context-engineer:fresh-context "refactoring payments"</code> before starting. When context gets heavy, TASK.md and PROGRESS.md are ready for a clean handoff.<br><br>
+        <strong>Don't fight the RED zone.</strong> When context exceeds 85%, let Claude wrap up and create handoff files. A fresh session with full awareness beats a degraded session every time.
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — Budget Zones Deep Dive -->
+  <section class="section" id="budget-zones">
+    <div class="section__label">
+      <span class="section__label-num">08</span> Budget Zones
+    </div>
+    <h2 class="section__title">Adaptive behavior as context fills.</h2>
+    <p class="section__text">Four zones determine how Claude works. No configuration &mdash; it adapts automatically based on how much of the context window is consumed.</p>
+
+    <div class="problem-grid" style="margin-top: 24px;">
+      <div class="problem-card" style="border-left: 4px solid #22c55e;">
+        <div class="problem-card__title" style="color: #15803d;">GREEN &mdash; Below 60%</div>
+        <div class="problem-card__desc">Full exploration mode. Read entire files freely. Use Opus for architecture decisions. No constraints on tool usage. This is where you do your best creative work.</div>
+      </div>
+      <div class="problem-card" style="border-left: 4px solid #eab308;">
+        <div class="problem-card__title" style="color: #a16207;">YELLOW &mdash; 60-75%</div>
+        <div class="problem-card__desc">Getting warm. Prefers Grep over Read. Summarizes content before processing. Batches related operations. Delegates simple tasks to Haiku subagents.</div>
+      </div>
+      <div class="problem-card" style="border-left: 4px solid #f97316;">
+        <div class="problem-card__title" style="color: #c2670a;">ORANGE &mdash; 75-85%</div>
+        <div class="problem-card__desc">Conservation mode. Line ranges only, no full file reads. Targeted Grep searches. Delegates everything possible to subagents. Focus on your primary task.</div>
+      </div>
+      <div class="problem-card" style="border-left: 4px solid #dc2626;">
+        <div class="problem-card__title" style="color: #dc2626;">RED &mdash; Above 85%</div>
+        <div class="problem-card__desc">Time to hand off. Finishes the immediate task. Creates TASK.md + PROGRESS.md automatically. Suggests starting a new conversation with full context preserved.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 — Fresh Context Pattern -->
+  <section class="section" id="fresh-context">
+    <div class="section__label">
+      <span class="section__label-num">09</span> Fresh Context Pattern
+    </div>
+    <h2 class="section__title">Complex tasks survive across sessions.</h2>
+    <p class="section__text">When context gets heavy or a feature spans multiple sessions, create handoff files so the next session picks up exactly where you left off.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step__num">1</div>
+        <div class="step__content">
+          <div class="step__title">Create handoff files</div>
+          <div class="step__desc">Run the command with a description of your task. Two files get created in your project root.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="command">/context-engineer:fresh-context "implementing JWT authentication"</span></code></div>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">2</div>
+        <div class="step__content">
+          <div class="step__title">Two files capture everything</div>
+          <div class="step__desc">
+            <strong>TASK.md</strong> &mdash; Goal, constraints, key files, decisions already made, current context.<br>
+            <strong>PROGRESS.md</strong> &mdash; Steps completed, current state, next steps, notes and blockers.
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step__num">3</div>
+        <div class="step__content">
+          <div class="step__title">Continue in a new session</div>
+          <div class="step__desc">Open Claude Code in the same directory. Claude reads CLAUDE.md automatically. Then tell it to pick up where you left off. Fresh context, full awareness, zero token baggage.</div>
+          <div class="code-block">
+            <div class="code-block__header"><span>Claude Code</span></div>
+            <div class="code-block__body"><code><span class="comment"># In a new Claude Code session:</span>
+<span class="command">Read TASK.md and PROGRESS.md and continue where the last session left off.</span></code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 — Model Switching & Degradation -->
+  <section class="section" id="model-switching">
+    <div class="section__label">
+      <span class="section__label-num">10</span> Smart Routing
+    </div>
+    <h2 class="section__title">Right model, right task.</h2>
+    <p class="section__text">Stop using a sledgehammer for every nail. The model switching skill routes tasks to the optimal model automatically.</p>
+
+    <table class="commands-table">
+      <thead>
+        <tr><th>Task Type</th><th>Model</th><th>Cost</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>File search, grep, quick lookups, simple edits</td>
+          <td>Haiku</td>
+          <td>1x</td>
+        </tr>
+        <tr>
+          <td>Code review, refactoring, multi-file changes</td>
+          <td>Sonnet</td>
+          <td>5x</td>
+        </tr>
+        <tr>
+          <td>Architecture decisions, complex debugging, security review</td>
+          <td>Opus</td>
+          <td>25x</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 32px;">
+      <h3 class="section__title" style="font-size: 1.4rem;">Degradation detection.</h3>
+      <p class="section__text">Four stages of context degradation with automatic detection. The skill flags problems in real time so you can act before quality collapses.</p>
+    </div>
+
+    <table class="commands-table" style="margin-top: 16px;">
+      <thead>
+        <tr><th>Stage</th><th>Context</th><th>Signs</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Stage 1</td>
+          <td>~60%</td>
+          <td>Forgetting details, asking for re-confirmation of earlier decisions</td>
+        </tr>
+        <tr>
+          <td>Stage 2</td>
+          <td>~75%</td>
+          <td>Contradicting decisions, missing imports, inconsistent naming</td>
+        </tr>
+        <tr>
+          <td>Stage 3</td>
+          <td>~85%</td>
+          <td>Hallucinating APIs that don't exist, looping on the same fix attempt</td>
+        </tr>
+        <tr>
+          <td>Stage 4</td>
+          <td>~90%+</td>
+          <td>Incoherent reasoning, nonsensical code generation</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 11 — Daily Workflow -->
+  <section class="section" id="workflow">
+    <div class="section__label">
+      <span class="section__label-num">11</span> Daily Workflow
+    </div>
+    <h2 class="section__title">Your cheat sheet.</h2>
+
+    <div class="problem-grid" style="margin-top: 24px;">
+      <div class="problem-card">
+        <div class="problem-card__title">Starting a session</div>
+        <div class="problem-card__desc">
+          Open Claude Code in your project. CLAUDE.md loads automatically. Hooks are active. Continuing previous work? Tell Claude to read TASK.md and PROGRESS.md.
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card__title">During a session</div>
+        <div class="problem-card__desc">
+          Tests/builds/linting are filtered automatically. Budget zones adapt silently. Degradation detection watches in the background. Model switching guides subagent usage.
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card__title">Ending a session</div>
+        <div class="problem-card__desc">
+          Task done? Commit your code. Task continues? Run /context-engineer:fresh-context. Hit RED zone? Claude suggests creating handoff files automatically.
+        </div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-card__title">Periodic maintenance</div>
+        <div class="problem-card__desc">
+          Run /context-engineer:diagnose if sessions feel slow. Run /context-engineer:audit-mcp after adding new MCP servers. Update CLAUDE.md if architecture changes.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 — Troubleshooting -->
+  <section class="section" id="troubleshooting">
+    <div class="section__label">
+      <span class="section__label-num">12</span> Troubleshooting
+    </div>
+    <h2 class="section__title">Common questions.</h2>
+
+    <table class="commands-table">
+      <thead>
+        <tr><th>Issue</th><th>Solution</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Hooks don't seem to be filtering</td>
+          <td>Hooks only activate on output &gt; 40 lines. Run a test suite with enough tests to generate verbose output.</td>
+        </tr>
+        <tr>
+          <td>Setup added duplicate content</td>
+          <td>Run /context-engineer:diagnose to check. Remove the duplicate section from CLAUDE.md manually.</td>
+        </tr>
+        <tr>
+          <td>Context still fills quickly</td>
+          <td>Expected on large codebases. Use fresh context more frequently. Focus sessions on specific subsystems.</td>
+        </tr>
+        <tr>
+          <td>Want to customize hook triggers</td>
+          <td>Edit scripts at hooks/scripts/. Each has a pattern matcher at the top.</td>
+        </tr>
+        <tr>
+          <td>Want to change the 40-line threshold</td>
+          <td>Edit the LINE_COUNT check in any hook script under hooks/scripts/.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__left">
+      <span>context-engineer v1.1.0</span>
+      <span>&mdash;</span>
+      <span>Built by Silvester Divas</span>
+    </div>
+    <div class="footer__right">
+      <a href="index.html">Home</a>
+      <span>MIT License</span>
+    </div>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
