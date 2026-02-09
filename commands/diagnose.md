@@ -9,20 +9,258 @@ Run the visual health scorecard and provide actionable recommendations.
 
 ## Instructions
 
-### Step 1: Run the scorecard script
+### Step 1: Run the inline scorecard
 
-Run the scorecard using the `CLAUDE_PLUGIN_ROOT` environment variable (set by Claude Code at runtime):
+Run this self-contained scorecard script. Replace `<project-root>` with the user's current working directory:
+
+```bash
+bash -c '
+PROJECT_ROOT="${1:-.}"
+
+# ── Colors ──
+G="\033[0;32m"; Y="\033[0;33m"; R="\033[0;31m"; C="\033[0;36m"
+D="\033[0;90m"; B="\033[1m"; BG="\033[1;32m"; BY="\033[1;33m"
+BR="\033[1;31m"; N="\033[0m"
+W=60; PASS=0; WARN=0; FAIL=0; TOTAL=4
+ESC=$(printf "\033")
+
+# ── Find plugin root (search common locations) ──
+PLUGIN_ROOT=""
+for candidate in \
+  "${CLAUDE_PLUGIN_ROOT:-}" \
+  "$HOME/.claude/plugins/context-engineer" \
+  "$HOME/.claude/plugins/context-engineer-marketplace/context-engineer" \
+  "$PROJECT_ROOT"; do
+  [[ -n "$candidate" && -f "$candidate/hooks/scripts/filter-test-output.sh" ]] && PLUGIN_ROOT="$candidate" && break
+done
+
+# ── Version ──
+VER="?.?.?"
+for pj in "$PLUGIN_ROOT/.claude-plugin/plugin.json" "$PROJECT_ROOT/.claude-plugin/plugin.json"; do
+  if [[ -f "$pj" ]]; then
+    VER=$(grep -o "\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" "$pj" | grep -o "[0-9][0-9.]*" || echo "?.?.?")
+    break
+  fi
+done
+
+# ── Helpers ──
+box_top()    { echo -e "  ${C}┌$(printf "─%.0s" $(seq 1 $W))┐${N}"; }
+box_bottom() { echo -e "  ${C}└$(printf "─%.0s" $(seq 1 $W))┘${N}"; }
+box_line()   {
+  local text="$1"
+  local plain=$(echo -e "$text" | sed "s/${ESC}\[[0-9;]*m//g")
+  local len=${#plain}
+  local pad=$((W - len - 2))
+  [[ $pad -lt 1 ]] && pad=1
+  echo -e "  ${C}│${N} ${text}$(printf " %.0s" $(seq 1 $pad))${C}│${N}"
+}
+rule() { echo -e "  ${D}$(printf "─%.0s" $(seq 1 $W))${N}"; }
+
+check_row() {
+  local status="$1" label="$2" detail="$3" dot=""
+  case "$status" in
+    pass) dot="${G}●${N}" ;; warn) dot="${Y}●${N}" ;;
+    fail) dot="${R}●${N}" ;; info) dot="${D}○${N}" ;;
+  esac
+  local pad=$((22 - ${#label}))
+  [[ $pad -lt 1 ]] && pad=1
+  echo -e "  ${dot} ${B}${label}${N}$(printf " %.0s" $(seq 1 $pad)) ${detail}"
+}
+
+bar() {
+  local label="$1" pct="$2" color="$3" bw=20
+  local filled=$((pct * bw / 100))
+  local empty=$((bw - filled))
+  local fill="" emp=""
+  for ((i=0; i<filled; i++)); do fill="${fill}█"; done
+  for ((i=0; i<empty; i++)); do emp="${emp}░"; done
+  printf "  ${D}%-7s${N}${color}%s${D}%s${N}  ${B}~%d%%${N}\n" "$label" "$fill" "$emp" "$pct"
+}
+
+# ══════════════════════════════════════════════════════════
+# CHECKS
+# ══════════════════════════════════════════════════════════
+
+# ── 1. CLAUDE.md ──
+CLAUDE_MD=""
+for dir in "$PROJECT_ROOT" "$PROJECT_ROOT/.."; do
+  [[ -f "$dir/CLAUDE.md" ]] && CLAUDE_MD="$dir/CLAUDE.md" && break
+done
+
+c1_status="fail"
+c1_detail="No CLAUDE.md found — run ${B}/context-engineer:setup${N}"
+
+if [[ -n "$CLAUDE_MD" ]]; then
+  hb=$(grep -c "Budget Zones" "$CLAUDE_MD" 2>/dev/null || true)
+  hf=$(grep -c "Fresh Context" "$CLAUDE_MD" 2>/dev/null || true)
+  ht=$(grep -c "Tool Efficiency" "$CLAUDE_MD" 2>/dev/null || true)
+  cb="${R}✗${N}"; [[ ${hb:-0} -gt 0 ]] && cb="${G}✓${N}"
+  cf="${R}✗${N}"; [[ ${hf:-0} -gt 0 ]] && cf="${G}✓${N}"
+  ct="${R}✗${N}"; [[ ${ht:-0} -gt 0 ]] && ct="${G}✓${N}"
+  if [[ ${hb:-0} -gt 0 && ${hf:-0} -gt 0 && ${ht:-0} -gt 0 ]]; then
+    c1_status="pass"; c1_detail="Budget ${cb}  Fresh context ${cf}  Tools ${ct}"; PASS=$((PASS + 1))
+  else
+    c1_status="warn"; c1_detail="Budget ${cb}  Fresh context ${cf}  Tools ${ct}"; WARN=$((WARN + 1))
+  fi
+else
+  FAIL=$((FAIL + 1))
+fi
+
+# ── 2. Token-Saving Hooks ──
+h_test=0; h_build=0; h_lint=0
+if [[ -n "$PLUGIN_ROOT" ]]; then
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-test-output.sh" ]] && h_test=1
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-build-output.sh" ]] && h_build=1
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-lint-output.sh" ]] && h_lint=1
+fi
+h_count=$((h_test + h_build + h_lint))
+
+ct="${R}✗${N}"; [[ $h_test -eq 1 ]] && ct="${G}✓${N}"
+cb="${R}✗${N}"; [[ $h_build -eq 1 ]] && cb="${G}✓${N}"
+cl="${R}✗${N}"; [[ $h_lint -eq 1 ]] && cl="${G}✓${N}"
+
+if [[ $h_count -eq 3 ]]; then
+  c2_status="pass"; c2_detail="test ${ct}  build ${cb}  lint ${cl}"; PASS=$((PASS + 1))
+elif [[ $h_count -gt 0 ]]; then
+  c2_status="warn"; c2_detail="test ${ct}  build ${cb}  lint ${cl}"; WARN=$((WARN + 1))
+else
+  c2_status="fail"; c2_detail="No filter hooks found"; FAIL=$((FAIL + 1))
+fi
+
+# ── 3. Fresh Context Files (informational) ──
+f_task=0; [[ -f "$PROJECT_ROOT/TASK.md" ]] && f_task=1
+f_prog=0; [[ -f "$PROJECT_ROOT/PROGRESS.md" ]] && f_prog=1
+
+if [[ $f_task -eq 1 && $f_prog -eq 1 ]]; then
+  c3_status="pass"; c3_detail="TASK.md ${G}✓${N}  PROGRESS.md ${G}✓${N}"
+elif [[ $f_task -eq 1 || $f_prog -eq 1 ]]; then
+  td="${R}✗${N}"; [[ $f_task -eq 1 ]] && td="${G}✓${N}"
+  pd="${R}✗${N}"; [[ $f_prog -eq 1 ]] && pd="${G}✓${N}"
+  c3_status="warn"; c3_detail="TASK.md ${td}  PROGRESS.md ${pd}"
+else
+  c3_status="info"; c3_detail="${D}No active handoff files${N}"
+fi
+
+# ── 4. Git Hygiene ──
+c4_status="warn"; c4_detail="Not a git repository"
+
+if git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree &>/dev/null; then
+  if git -C "$PROJECT_ROOT" rev-parse HEAD &>/dev/null; then
+    diff_stat=$(git -C "$PROJECT_ROOT" diff --stat HEAD 2>/dev/null | tail -1 || true)
+  else
+    diff_stat=""
+  fi
+  untracked=$(git -C "$PROJECT_ROOT" status --short 2>/dev/null | wc -l | tr -d " " || echo 0)
+
+  if [[ -z "$diff_stat" && "${untracked:-0}" -le 2 ]]; then
+    c4_status="pass"; c4_detail="Clean working tree"; PASS=$((PASS + 1))
+  else
+    ins=$(echo "$diff_stat" | grep -o "[0-9]* insertion" | grep -o "[0-9]*" || true)
+    del=$(echo "$diff_stat" | grep -o "[0-9]* deletion" | grep -o "[0-9]*" || true)
+    total_changes=$(( ${ins:-0} + ${del:-0} ))
+    if [[ $total_changes -lt 500 ]]; then
+      c4_status="pass"; c4_detail="${total_changes} lines changed, ${untracked} untracked"; PASS=$((PASS + 1))
+    elif [[ $total_changes -lt 2000 ]]; then
+      c4_status="warn"; c4_detail="${Y}${total_changes} lines${N} — consider committing"; WARN=$((WARN + 1))
+    else
+      c4_status="fail"; c4_detail="${R}${total_changes} lines${N} uncommitted — context risk"; FAIL=$((FAIL + 1))
+    fi
+  fi
+else
+  WARN=$((WARN + 1))
+fi
+
+# ── 5. Project Structure ──
+c5_status="pass"; c5_detail="All files < 500 lines"
+
+largest_line=$(find "$PROJECT_ROOT" -type f \
+  \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
+     -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.tsx" \
+     -o -name "*.jsx" -o -name "*.html" -o -name "*.css" -o -name "*.rb" -o -name "*.swift" \) \
+  ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
+  ! -path "*/dist/*" ! -path "*/build/*" ! -path "*/.next/*" \
+  -exec wc -l {} + 2>/dev/null | sort -rn | head -1 || echo "0 total")
+
+if echo "$largest_line" | grep -q "total$"; then
+  largest_line=$(find "$PROJECT_ROOT" -type f \
+    \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
+       -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.tsx" \
+       -o -name "*.jsx" -o -name "*.html" -o -name "*.css" -o -name "*.rb" -o -name "*.swift" \) \
+    ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
+    ! -path "*/dist/*" ! -path "*/build/*" ! -path "*/.next/*" \
+    -exec wc -l {} + 2>/dev/null | sort -rn | head -2 | tail -1 || echo "0 unknown")
+fi
+
+lc=$(echo "$largest_line" | awk "{print \$1}" || echo 0)
+lf=$(echo "$largest_line" | awk "{print \$2}" | xargs basename 2>/dev/null || echo "?")
+lc=${lc:-0}
+
+big_count=0
+if [[ -d "$PROJECT_ROOT" ]]; then
+  big_count=$(find "$PROJECT_ROOT" -type f \
+    \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
+       -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) \
+    ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
+    -exec wc -l {} + 2>/dev/null | awk "\$1 > 1000 && !/total$/" | wc -l | tr -d " " || echo 0)
+fi
+
+if [[ ${big_count:-0} -gt 3 ]]; then
+  c5_status="fail"; c5_detail="${R}${big_count} files${N} > 1000 lines"; FAIL=$((FAIL + 1))
+elif [[ ${lc:-0} -gt 500 ]]; then
+  c5_status="warn"; c5_detail="Largest: ${Y}${lf}${N} (${lc} lines)"; WARN=$((WARN + 1))
+else
+  c5_status="pass"; c5_detail="All files < 500 lines"; PASS=$((PASS + 1))
+fi
+
+# ══════════════════════════════════════════════════════════
+# OUTPUT
+# ══════════════════════════════════════════════════════════
+
+echo ""
+box_top
+box_line "${B}context-engineer${N} v${VER}  ${D}·${N}  Health Scorecard"
+box_bottom
+echo ""
+
+check_row "$c1_status" "CLAUDE.md" "$c1_detail"
+check_row "$c2_status" "Token-Saving Hooks" "$c2_detail"
+check_row "$c3_status" "Fresh Context" "$c3_detail"
+check_row "$c4_status" "Git Hygiene" "$c4_detail"
+check_row "$c5_status" "Project Structure" "$c5_detail"
+
+echo ""
+
+if [[ $FAIL -gt 0 ]]; then SC="${BR}"; ST="Needs attention."
+elif [[ $WARN -gt 0 ]]; then SC="${BY}"; ST="Almost there."
+else SC="${BG}"; ST="Your context is engineered."
+fi
+
+box_top
+box_line "${B}Score: ${PASS}/${TOTAL} passing${N}  ${D}·${N}  ${SC}${ST}${N}"
+box_bottom
+echo ""
+
+echo -e "  ${D}Token Savings${N}"
+echo ""
+bar "test" 80 "$G"
+bar "build" 90 "$G"
+bar "lint" 70 "$Y"
+echo ""
+
+rule
+echo -e "  ${D}context-engineer${N}"
+echo ""
+
+if [[ $FAIL -gt 0 ]]; then exit 2
+elif [[ $WARN -gt 0 ]]; then exit 1
+else exit 0
+fi
+' -- <project-root>
 ```
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/scorecard.sh" <project-root>
-```
-
-Pass the user's current working directory as `<project-root>`.
-
-The script outputs a formatted terminal scorecard with colored pass/warn/fail indicators, token savings bars, and a score summary.
 
 ### Step 2: MCP Server Hygiene (manual check)
 
-The script doesn't check MCP servers — that requires inspecting the system context. Check yourself:
+The scorecard doesn't check MCP servers — that requires inspecting the system context. Check yourself:
 - Count the number of MCP servers active in this session (visible in the system prompt)
 - Count the total MCP tools available
 - **PASS:** All servers are relevant, total tools < 20
