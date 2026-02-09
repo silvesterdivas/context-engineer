@@ -3,7 +3,7 @@
   "description": "Context engineering best practices for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, and more.",
   "version": "1.1.0",
   "author": {
-    "name": "ShipPrompt"
+    "name": "Silvester Divas"
   },
   "repository": "https://github.com/silvesterdivas/context-engineer",
   "license": "MIT",
