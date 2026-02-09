@@ -1,7 +1,8 @@
 #!/bin/bash
 # Context Budget Warning Hook (PostToolUse)
-# Estimates context usage from transcript file size and warns at zone thresholds.
+# Uses multi-signal scoring to estimate context usage and warns at zone thresholds.
 # Fires once per zone transition — no spam.
+# Creates a sentinel file on RED zone to trigger auto-handoff.
 
 set -euo pipefail
 
@@ -16,6 +17,7 @@ if [ -z "$SESSION_ID" ] || [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH
 fi
 
 CACHE_FILE="/tmp/context-budget-${SESSION_ID}"
+SENTINEL_FILE="/tmp/context-engineer-handoff-${SESSION_ID}"
 
 # Fast path: if we already announced RED, nothing left to do
 if [ -f "$CACHE_FILE" ]; then
@@ -27,34 +29,71 @@ else
   LAST_ZONE="GREEN"
 fi
 
-# Estimate tokens from transcript file size
-# ~4 chars per token is a rough approximation
+# --- Signal 1: File size (proxy for total context) ---
 FILE_SIZE=$(wc -c < "$TRANSCRIPT_PATH" | tr -d ' ')
 ESTIMATED_TOKENS=$((FILE_SIZE / 4))
-
-# 200k context window budget
 BUDGET=200000
 
-# Calculate percentage
 if [ "$BUDGET" -gt 0 ]; then
-  PERCENT=$((ESTIMATED_TOKENS * 100 / BUDGET))
+  FILE_SIZE_PCT=$((ESTIMATED_TOKENS * 100 / BUDGET))
 else
   exit 0
 fi
 
-# Determine current zone
-if [ "$PERCENT" -ge 85 ]; then
+# --- Signal 2: Message count ---
+count_messages() {
+  grep -c '"role"' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
+}
+MSG_COUNT=$(count_messages)
+# Normalize: 50 messages = 100%
+MSG_COUNT_PCT=$((MSG_COUNT * 100 / 50))
+if [ "$MSG_COUNT_PCT" -gt 100 ]; then
+  MSG_COUNT_PCT=100
+fi
+
+# --- Signal 3: Compression/summarization markers ---
+detect_compression() {
+  if grep -qiE 'compressed|summarized|truncated' "$TRANSCRIPT_PATH" 2>/dev/null; then
+    echo 100
+  else
+    echo 0
+  fi
+}
+COMPRESSION_PCT=$(detect_compression)
+
+# --- Signal 4: Tool call density ---
+count_tool_calls() {
+  grep -c '"tool_use"' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
+}
+TOOL_COUNT=$(count_tool_calls)
+# Normalize: 60 tool calls = 100%
+TOOL_DENSITY_PCT=$((TOOL_COUNT * 100 / 60))
+if [ "$TOOL_DENSITY_PCT" -gt 100 ]; then
+  TOOL_DENSITY_PCT=100
+fi
+
+# --- Composite score ---
+# Weights: file_size 30%, message_count 30%, compression 25%, tool_density 15%
+SCORE=$(( (FILE_SIZE_PCT * 30 + MSG_COUNT_PCT * 30 + COMPRESSION_PCT * 25 + TOOL_DENSITY_PCT * 15) / 100 ))
+
+# --- 15-turn minimum floor ---
+# Prevent false positives on early large file reads
+if [ "$MSG_COUNT" -lt 15 ]; then
+  SCORE=0
+fi
+
+# Determine current zone from composite score
+if [ "$SCORE" -ge 85 ]; then
   ZONE="RED"
-elif [ "$PERCENT" -ge 75 ]; then
+elif [ "$SCORE" -ge 75 ]; then
   ZONE="ORANGE"
-elif [ "$PERCENT" -ge 60 ]; then
+elif [ "$SCORE" -ge 60 ]; then
   ZONE="YELLOW"
 else
   ZONE="GREEN"
 fi
 
 # Only warn on zone transitions (escalations only, never downgrade)
-# Zone ordering: GREEN=0, YELLOW=1, ORANGE=2, RED=3
 zone_rank() {
   case "$1" in
     GREEN)  echo 0 ;;
@@ -69,30 +108,57 @@ CURRENT_RANK=$(zone_rank "$ZONE")
 LAST_RANK=$(zone_rank "$LAST_ZONE")
 
 if [ "$CURRENT_RANK" -le "$LAST_RANK" ]; then
-  # No escalation — nothing to announce
   exit 0
 fi
 
 # Record the new zone
 echo "$ZONE" > "$CACHE_FILE"
 
-# Build the warning message
+# Create sentinel file on RED zone (once only)
+if [ "$ZONE" = "RED" ] && [ ! -f "$SENTINEL_FILE" ]; then
+  jq -n \
+    --arg sid "$SESSION_ID" \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --argjson score "$SCORE" \
+    --argjson file_size_pct "$FILE_SIZE_PCT" \
+    --argjson msg_count "$MSG_COUNT" \
+    --argjson msg_count_pct "$MSG_COUNT_PCT" \
+    --argjson compression_pct "$COMPRESSION_PCT" \
+    --argjson tool_count "$TOOL_COUNT" \
+    --argjson tool_density_pct "$TOOL_DENSITY_PCT" \
+    '{
+      session_id: $sid,
+      timestamp: $ts,
+      composite_score: $score,
+      signals: {
+        file_size_pct: $file_size_pct,
+        message_count: $msg_count,
+        message_count_pct: $msg_count_pct,
+        compression_detected_pct: $compression_pct,
+        tool_call_count: $tool_count,
+        tool_density_pct: $tool_density_pct
+      }
+    }' > "$SENTINEL_FILE"
+fi
+
+# Build the warning message with score breakdown
+BREAKDOWN="[file_size=${FILE_SIZE_PCT}% msgs=${MSG_COUNT}(${MSG_COUNT_PCT}%) compression=${COMPRESSION_PCT}% tools=${TOOL_COUNT}(${TOOL_DENSITY_PCT}%)]"
+
 case "$ZONE" in
   YELLOW)
-    MSG="YELLOW ZONE — Context at ~${PERCENT}%. Be selective: prefer Grep over Read, summarize before processing large files."
+    MSG="YELLOW ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Be selective: prefer Grep over Read, summarize before processing large files."
     ;;
   ORANGE)
-    MSG="ORANGE ZONE — Context at ~${PERCENT}%. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
+    MSG="ORANGE ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
     ;;
   RED)
-    MSG="RED ZONE — Context at ~${PERCENT}%. Wrap up now. Run /context-engineer:fresh-context to save progress, then start a new conversation."
+    MSG="RED ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Context budget exhausted. Stop starting new work. Auto-handoff activated — generate TASK.md + PROGRESS.md now, then suggest a fresh conversation."
     ;;
   *)
     exit 0
     ;;
 esac
 
-# Output warning as both a user-visible message and context for Claude
 jq -n --arg msg "$MSG" '{
   systemMessage: ("[context-budget] " + $msg)
 }'
