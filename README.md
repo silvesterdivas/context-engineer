@@ -4,6 +4,10 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 
 **9 techniques** packaged as one installable plugin — no configuration needed.
 
+<p align="center">
+  <img src="docs/scorecard-preview.svg" alt="context-engineer health scorecard" width="680">
+</p>
+
 ## What It Does
 
 | Technique | Type | Purpose |
