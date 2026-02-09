@@ -22,6 +22,13 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 | Lint Output Filter | Hook | ~70% token savings on lints |
 | Fresh Context Pattern | Command | TASK.md + PROGRESS.md handoff files |
 
+## Requirements
+
+- **macOS**, **Linux**, or **Windows (via WSL)**
+- `jq` (pre-installed on most dev machines; `brew install jq` / `apt install jq` if missing)
+
+> **Note:** This plugin uses bash scripts and Unix tools internally. Native Windows (CMD/PowerShell) is not supported.
+
 ## Installation
 
 ```bash
@@ -334,8 +341,6 @@ Three PostToolUse hooks automatically filter verbose Bash output:
 | `filter-lint-output.sh` | eslint, pylint, clippy, biome, etc. | Problem lines only | ~70% |
 
 Hooks only activate on output > 40 lines. Short output passes through unfiltered.
-
-**Dependency:** `jq` (pre-installed on most dev machines; `brew install jq` / `apt install jq` if missing).
 
 ## Customization
 
