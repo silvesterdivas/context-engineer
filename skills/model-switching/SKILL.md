@@ -1,7 +1,7 @@
 ---
 name: Model Switching
 description: This skill provides guidance on which model to use for different task types, optimizing for cost and capability by matching task complexity to the appropriate model tier.
-version: 1.0.0
+version: 1.1.0
 user-invocable: false
 ---
 

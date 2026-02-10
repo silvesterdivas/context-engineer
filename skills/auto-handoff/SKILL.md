@@ -1,7 +1,7 @@
 ---
 name: Auto-Pilot Handoff
 description: Always active. After completing atomic work units, checks for context budget exhaustion and guides handoff file creation.
-version: 1.0.0
+version: 1.1.0
 user-invocable: false
 ---
 
