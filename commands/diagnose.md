@@ -26,10 +26,12 @@ ESC=$(printf "\033")
 
 # ── Find plugin root (search common locations) ──
 PLUGIN_ROOT=""
+CACHE_LATEST=$(ls -d "$HOME/.claude/plugins/cache/context-engineer-marketplace/context-engineer"/*/ 2>/dev/null | sort -rV | head -1)
 for candidate in \
   "${CLAUDE_PLUGIN_ROOT:-}" \
   "$HOME/.claude/plugins/context-engineer" \
   "$HOME/.claude/plugins/context-engineer-marketplace/context-engineer" \
+  "$CACHE_LATEST" \
   "$PROJECT_ROOT"; do
   [[ -n "$candidate" && -f "$candidate/hooks/scripts/filter-test-output.sh" ]] && PLUGIN_ROOT="$candidate" && break
 done
