@@ -24,10 +24,8 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 
 ## Requirements
 
-- **macOS**, **Linux**, or **Windows (via WSL)**
+- **macOS**, **Linux**, or **Windows** (via WSL or Git Bash — both required by Claude Code)
 - `jq` (pre-installed on most dev machines; `brew install jq` / `apt install jq` if missing)
-
-> **Note:** This plugin uses bash scripts and Unix tools internally. Native Windows (CMD/PowerShell) is not supported.
 
 ## Installation
 
