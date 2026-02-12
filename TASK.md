@@ -14,7 +14,7 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 - Plugin uses bash scripts + Unix tools (jq, grep, sed, awk) — macOS/Linux/WSL only
 - Landing page split into 4 files (index.html, guide.html, styles.css, script.js) — all must stay under 500 lines
 - Scorecard output must be compact (12 lines) to fit Claude Code's collapsed view
-- Version is v1.1.0 across plugin.json, landing page, and README
+- Version is v1.1.1 across plugin.json, landing page, and README
 
 ## Key Files
 - `index.html` — Landing page
@@ -32,9 +32,9 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 - **Compact scorecard (12 lines):** Collapsed from 24 lines so full output is visible in Claude Code without ctrl+o expand
   - *Reasoning:* Claude Code collapses long Bash output; users couldn't see the full scorecard
   - *Rejected alternatives:* Keeping the progress bar art (too many lines), making it even shorter (lost readability)
-- **Platform support — Unix only:** macOS, Linux, WSL supported; native Windows not supported
-  - *Reasoning:* Plugin relies on bash scripts, jq, and Unix tools throughout; porting to PowerShell is significant effort
-  - *Rejected alternatives:* Cross-platform support deferred pending demand
+- **Platform support — bash required (macOS, Linux, WSL, Git Bash):** Native Windows CMD/PowerShell not supported
+  - *Reasoning:* Plugin relies on bash scripts, jq, and Unix tools. Claude Code itself requires Git Bash on Windows, so bash is guaranteed.
+  - *Rejected alternatives:* Node.js rewrite (unnecessary — bash is available on all Claude Code platforms), PowerShell equivalents (high maintenance), POSIX sh rewrite (still no native Windows support)
 - **Landing page 4-file split:** index.html, guide.html, styles.css, script.js
   - *Reasoning:* Single index.html exceeded 500-line scorecard threshold
   - *Rejected alternatives:* Inlining CSS/JS (too large), further splitting HTML (unnecessary)
@@ -43,3 +43,13 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 
 ## Approaches Tried & Failed
 - **None in this session** — all changes landed cleanly
+
+## Session Update — 2026-02-11
+
+### New Decisions
+- **Cache glob for plugin root discovery:** Added `ls -d .../cache/.../*/ | sort -rV | head -1` to find the installed plugin in the marketplace cache directory
+  - *Reasoning:* Hardcoded paths missed the actual install path (`cache/context-engineer-marketplace/context-engineer/<version>/`)
+  - *Rejected alternatives:* `find` (slower, overkill), hardcoding the version (breaks on updates)
+- **Windows support via Git Bash:** Confirmed Claude Code requires Git Bash on Windows, so all bash scripts work without changes
+  - *Reasoning:* Investigated official docs — Git Bash is a hard requirement for Claude Code on Windows
+  - *Rejected alternatives:* Node.js rewrite, PowerShell ports, POSIX sh rewrite — all unnecessary
