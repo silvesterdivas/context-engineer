@@ -15,3 +15,7 @@
 
 # Local reference docs
 context-engineering-reference.md
+
+# Session handoff files (internal dev notes, not for end users)
+TASK.md
+PROGRESS.md
