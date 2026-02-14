@@ -66,3 +66,9 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 - **Atomic sentinel file creation:** Use `mktemp` + `mv -n` instead of direct write
   - *Reasoning:* Concurrent PostToolUse hook invocations could race on the sentinel check-then-write
   - *Rejected alternatives:* File locking with `flock` (not available on all macOS versions), accepting the race (could cause duplicate RED zone messages)
+- **Use real token data instead of file-size heuristic:** Rewrote budget warning hook to read `input_tokens + cache_read_input_tokens + cache_creation_input_tokens` from the last assistant message in the transcript
+  - *Reasoning:* The old `bytes / 4` heuristic was wildly inaccurate — reported 207% RED while actual usage was 72% YELLOW (3x overestimate). The transcript contains the exact same token data that `/context` uses.
+  - *Rejected alternatives:* Improving the heuristic weights (fundamental flaw: transcript file grows forever while context window is managed with caching/compression), using only message count (doesn't account for system prompts or tool definitions)
+
+### Approaches Tried & Failed
+- **File size / 4 as token estimate:** The transcript file size bears no relation to actual context window usage because the file grows monotonically while the context window is managed with caching and auto-compression. A 1.6MB transcript had only 72% real usage, not 207%.

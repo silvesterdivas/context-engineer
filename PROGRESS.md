@@ -36,27 +36,31 @@
 - [x] Added changelog to README (v1.0.0 through v1.1.2)
 - [x] Created git tag v1.1.2
 - [x] Created GitHub release v1.1.2
+- [x] Rewrote budget warning hook to use real token data from transcript (input_tokens + cache_read + cache_creation)
+- [x] Added heuristic fallback for transcripts without token data
+- [x] Fixed `grep -c || echo 0` producing `"0\n0"` on zero matches
+- [x] Updated landing page version to v1.1.2 (index.html + guide.html)
+- [x] Synced gh-pages with main
+- [x] Updated local marketplace cache to v1.1.2
 
 ## Current State
-- Working tree is clean, main is at 32453ba
+- Working tree is clean, main is at 6fb795d
 - Plugin v1.1.2 released on GitHub with tag and release
-- Landing page live at https://silvesterdivas.github.io/context-engineer/
-- All hook scripts tested end-to-end (budget warning + 3 filters)
-- Diagnose command correctly finds plugin in marketplace cache path
+- Landing page live at https://silvesterdivas.github.io/context-engineer/ showing v1.1.2
+- Budget warning hook uses real token data — matches `/context` output
+- gh-pages synced, local cache updated
 - All files under 500 lines
 - All skill versions synced to 1.1.2
 
 ## Next Steps
-1. [ ] Sync gh-pages with latest main (landing page may need version bump to 1.1.2)
-2. [ ] Update local marketplace cache to 1.1.2
-3. [ ] Consider disabling Context7 MCP server (~700-1000 token savings) if not needed
-4. [ ] Any remaining polish or feature work as needed
+1. [ ] Consider disabling Context7 MCP server (~700-1000 token savings) if not needed
+2. [ ] Any remaining polish or feature work as needed
 
 ## Blockers / Open Questions
-- gh-pages may still show older version on the landing page — needs sync
+- None currently
 
 ## Session Log
 - **2026-02-09 (session 1):** Polished landing page (CSS cleanup, JS guard), compacted scorecard to 12 lines, removed Claude from contributors, added platform compatibility disclaimers, pushed to main + gh-pages. Plugin is production-ready at v1.1.0.
 - **2026-02-09 (session 2):** Code audit (3 parallel agents), added .gitignore, synced skill versions to 1.1.0, created local reference doc with all best practices, drafted LinkedIn and Reddit posts. All pushed to main + gh-pages.
 - **2026-02-11 (session 3):** Fixed plugin root discovery bug (diagnose couldn't find hooks when installed via marketplace cache). Added glob-based cache search. Confirmed Windows works via Git Bash, updated README. Bumped to v1.1.1, released on GitHub.
-- **2026-02-14 (session 4):** Fixed 7 hook reliability bugs — scoring caps, compression false positives, message count pattern, empty file guard, sentinel race condition, jq availability checks, jq error handling. Bumped to v1.1.2, added changelog to README, tagged and released on GitHub.
+- **2026-02-14 (session 4):** Fixed 7 hook reliability bugs — scoring caps, compression false positives, message count pattern, empty file guard, sentinel race condition, jq availability checks, jq error handling. Bumped to v1.1.2, added changelog to README, tagged and released on GitHub. Then rewrote budget warning hook to use real token data from transcript instead of file-size heuristic (old: 207% RED, real: 72% YELLOW). Synced gh-pages, updated landing page and local cache.
