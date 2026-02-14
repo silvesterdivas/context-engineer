@@ -1,6 +1,7 @@
 #!/bin/bash
 # Context Budget Warning Hook (PostToolUse)
-# Uses multi-signal scoring to estimate context usage and warns at zone thresholds.
+# Uses real token counts from the transcript to detect context budget zones.
+# Falls back to heuristic scoring when token data is unavailable.
 # Fires once per zone transition — no spam.
 # Creates a sentinel file on RED zone to trigger auto-handoff.
 
@@ -34,70 +35,55 @@ else
   LAST_ZONE="GREEN"
 fi
 
-# --- Signal 1: File size (proxy for total context) ---
-FILE_SIZE=$(wc -c < "$TRANSCRIPT_PATH" | tr -d ' ')
-ESTIMATED_TOKENS=$((FILE_SIZE / 4))
 BUDGET=200000
+CONTEXT_PCT=0
+SOURCE="unknown"
 
-if [ "$BUDGET" -gt 0 ]; then
-  FILE_SIZE_PCT=$((ESTIMATED_TOKENS * 100 / BUDGET))
-  if [ "$FILE_SIZE_PCT" -gt 100 ]; then
-    FILE_SIZE_PCT=100
+# --- Primary: Real token data from last assistant message ---
+# Each assistant message in the transcript has usage.input_tokens,
+# usage.cache_read_input_tokens, and usage.cache_creation_input_tokens.
+# Their sum = actual context window usage for that API call.
+LAST_USAGE=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 | \
+  jq '(.message.usage.input_tokens // 0) + (.message.usage.cache_read_input_tokens // 0) + (.message.usage.cache_creation_input_tokens // 0)' 2>/dev/null) || LAST_USAGE=0
+
+if [ -n "$LAST_USAGE" ] && [ "$LAST_USAGE" -gt 0 ]; then
+  CONTEXT_PCT=$((LAST_USAGE * 100 / BUDGET))
+  if [ "$CONTEXT_PCT" -gt 100 ]; then
+    CONTEXT_PCT=100
   fi
+  SOURCE="tokens"
 else
-  exit 0
+  # --- Fallback: Heuristic scoring when token data unavailable ---
+  FILE_SIZE=$(wc -c < "$TRANSCRIPT_PATH" | tr -d ' ')
+  ESTIMATED_TOKENS=$((FILE_SIZE / 4))
+  FILE_SIZE_PCT=$((ESTIMATED_TOKENS * 100 / BUDGET))
+  [ "$FILE_SIZE_PCT" -gt 100 ] && FILE_SIZE_PCT=100
+
+  MSG_COUNT=$(grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT=0
+  MSG_COUNT_PCT=$((MSG_COUNT * 100 / 50))
+  [ "$MSG_COUNT_PCT" -gt 100 ] && MSG_COUNT_PCT=100
+
+  TOOL_COUNT=$(grep -c '"tool_use"' "$TRANSCRIPT_PATH" 2>/dev/null) || TOOL_COUNT=0
+  TOOL_DENSITY_PCT=$((TOOL_COUNT * 100 / 60))
+  [ "$TOOL_DENSITY_PCT" -gt 100 ] && TOOL_DENSITY_PCT=100
+
+  CONTEXT_PCT=$(( (FILE_SIZE_PCT * 40 + MSG_COUNT_PCT * 35 + TOOL_DENSITY_PCT * 25) / 100 ))
+  SOURCE="heuristic"
 fi
-
-# --- Signal 2: Message count ---
-count_messages() {
-  grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
-}
-MSG_COUNT=$(count_messages)
-# Normalize: 50 messages = 100%
-MSG_COUNT_PCT=$((MSG_COUNT * 100 / 50))
-if [ "$MSG_COUNT_PCT" -gt 100 ]; then
-  MSG_COUNT_PCT=100
-fi
-
-# --- Signal 3: Compression/summarization markers ---
-detect_compression() {
-  # Match system compression markers, not user content about compression
-  # Look for patterns like "messages have been compressed" or "context was summarized"
-  if grep -qE '(messages|context|conversation|prior messages).*(compressed|summarized|truncated)|automatically compress|system-reminder.*compress' "$TRANSCRIPT_PATH" 2>/dev/null; then
-    echo 100
-  else
-    echo 0
-  fi
-}
-COMPRESSION_PCT=$(detect_compression)
-
-# --- Signal 4: Tool call density ---
-count_tool_calls() {
-  grep -c '"tool_use"' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
-}
-TOOL_COUNT=$(count_tool_calls)
-# Normalize: 60 tool calls = 100%
-TOOL_DENSITY_PCT=$((TOOL_COUNT * 100 / 60))
-if [ "$TOOL_DENSITY_PCT" -gt 100 ]; then
-  TOOL_DENSITY_PCT=100
-fi
-
-# --- Composite score ---
-# Weights: file_size 30%, message_count 30%, compression 25%, tool_density 15%
-SCORE=$(( (FILE_SIZE_PCT * 30 + MSG_COUNT_PCT * 30 + COMPRESSION_PCT * 25 + TOOL_DENSITY_PCT * 15) / 100 ))
 
 # --- 15-turn minimum floor ---
 # Prevent false positives on early large file reads
-if [ "$MSG_COUNT" -lt 15 ]; then
-  SCORE=0
+MSG_COUNT_CHECK=$(grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT_CHECK=0
+if [ "$MSG_COUNT_CHECK" -lt 15 ]; then
+  CONTEXT_PCT=0
 fi
 
-# Determine current zone from composite score
-if [ "$SCORE" -ge 85 ]; then
+# Determine current zone
+if [ "$CONTEXT_PCT" -ge 85 ]; then
   ZONE="RED"
-elif [ "$SCORE" -ge 75 ]; then
+elif [ "$CONTEXT_PCT" -ge 75 ]; then
   ZONE="ORANGE"
-elif [ "$SCORE" -ge 60 ]; then
+elif [ "$CONTEXT_PCT" -ge 60 ]; then
   ZONE="YELLOW"
 else
   ZONE="GREEN"
@@ -130,41 +116,36 @@ if [ "$ZONE" = "RED" ] && [ ! -f "$SENTINEL_FILE" ]; then
   jq -n \
     --arg sid "$SESSION_ID" \
     --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    --argjson score "$SCORE" \
-    --argjson file_size_pct "$FILE_SIZE_PCT" \
-    --argjson msg_count "$MSG_COUNT" \
-    --argjson msg_count_pct "$MSG_COUNT_PCT" \
-    --argjson compression_pct "$COMPRESSION_PCT" \
-    --argjson tool_count "$TOOL_COUNT" \
-    --argjson tool_density_pct "$TOOL_DENSITY_PCT" \
+    --argjson score "$CONTEXT_PCT" \
+    --arg source "$SOURCE" \
+    --argjson tokens "${LAST_USAGE:-0}" \
     '{
       session_id: $sid,
       timestamp: $ts,
-      composite_score: $score,
-      signals: {
-        file_size_pct: $file_size_pct,
-        message_count: $msg_count,
-        message_count_pct: $msg_count_pct,
-        compression_detected_pct: $compression_pct,
-        tool_call_count: $tool_count,
-        tool_density_pct: $tool_density_pct
-      }
+      context_pct: $score,
+      source: $source,
+      total_input_tokens: $tokens,
+      budget: 200000
     }' > "$TMPSENTINEL" && mv -n "$TMPSENTINEL" "$SENTINEL_FILE" 2>/dev/null
   rm -f "$TMPSENTINEL" 2>/dev/null
 fi
 
-# Build the warning message with score breakdown
-BREAKDOWN="[file_size=${FILE_SIZE_PCT}% msgs=${MSG_COUNT}(${MSG_COUNT_PCT}%) compression=${COMPRESSION_PCT}% tools=${TOOL_COUNT}(${TOOL_DENSITY_PCT}%)]"
+# Build the warning message
+if [ "$SOURCE" = "tokens" ]; then
+  BREAKDOWN="[${LAST_USAGE}/${BUDGET} tokens, source=actual]"
+else
+  BREAKDOWN="[${CONTEXT_PCT}% estimated, source=heuristic]"
+fi
 
 case "$ZONE" in
   YELLOW)
-    MSG="YELLOW ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Be selective: prefer Grep over Read, summarize before processing large files."
+    MSG="YELLOW ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Be selective: prefer Grep over Read, summarize before processing large files."
     ;;
   ORANGE)
-    MSG="ORANGE ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
+    MSG="ORANGE ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
     ;;
   RED)
-    MSG="RED ZONE — Composite score: ${SCORE}% ${BREAKDOWN}. Context budget exhausted. Stop starting new work. Auto-handoff activated — generate TASK.md + PROGRESS.md now, then suggest a fresh conversation."
+    MSG="RED ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Context budget exhausted. Stop starting new work. Auto-handoff activated — generate TASK.md + PROGRESS.md now, then suggest a fresh conversation."
     ;;
   *)
     exit 0
