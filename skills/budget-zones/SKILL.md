@@ -1,7 +1,7 @@
 ---
 name: Budget Zones
 description: This skill should be used when the context window is filling up, when deciding whether to read a file or use grep, when planning work scope, when the user asks about "budget zones", "context budget", or "token management", or when you notice the conversation is getting long.
-version: 1.1.0
+version: 1.1.2
 user-invocable: true
 ---
 

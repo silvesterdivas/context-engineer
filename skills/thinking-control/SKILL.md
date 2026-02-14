@@ -1,7 +1,7 @@
 ---
 name: Thinking Control
 description: This skill provides guidance on how to calibrate thinking depth for different task types, avoiding over-thinking simple tasks and under-thinking complex ones.
-version: 1.1.0
+version: 1.1.2
 user-invocable: false
 ---
 

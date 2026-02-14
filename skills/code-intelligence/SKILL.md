@@ -1,7 +1,7 @@
 ---
 name: Code Intelligence
 description: This skill provides guidance on using LSP-aware tools and code navigation efficiently, preferring structured code intelligence over brute-force text search when navigating codebases.
-version: 1.1.0
+version: 1.1.2
 user-invocable: false
 ---
 
