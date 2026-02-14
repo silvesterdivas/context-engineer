@@ -6,13 +6,18 @@
 
 set -euo pipefail
 
+# Bail if jq is not available (needed for JSON parsing)
+if ! command -v jq >/dev/null 2>&1; then
+  exit 0
+fi
+
 INPUT=$(cat)
 
 SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // ""')
 TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // ""')
 
-# Bail if we don't have what we need
-if [ -z "$SESSION_ID" ] || [ -z "$TRANSCRIPT_PATH" ] || [ ! -f "$TRANSCRIPT_PATH" ]; then
+# Bail if we don't have what we need or file is empty
+if [ -z "$SESSION_ID" ] || [ -z "$TRANSCRIPT_PATH" ] || [ ! -s "$TRANSCRIPT_PATH" ]; then
   exit 0
 fi
 
@@ -36,13 +41,16 @@ BUDGET=200000
 
 if [ "$BUDGET" -gt 0 ]; then
   FILE_SIZE_PCT=$((ESTIMATED_TOKENS * 100 / BUDGET))
+  if [ "$FILE_SIZE_PCT" -gt 100 ]; then
+    FILE_SIZE_PCT=100
+  fi
 else
   exit 0
 fi
 
 # --- Signal 2: Message count ---
 count_messages() {
-  grep -c '"role"' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
+  grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null || echo 0
 }
 MSG_COUNT=$(count_messages)
 # Normalize: 50 messages = 100%
@@ -53,7 +61,9 @@ fi
 
 # --- Signal 3: Compression/summarization markers ---
 detect_compression() {
-  if grep -qiE 'compressed|summarized|truncated' "$TRANSCRIPT_PATH" 2>/dev/null; then
+  # Match system compression markers, not user content about compression
+  # Look for patterns like "messages have been compressed" or "context was summarized"
+  if grep -qE '(messages|context|conversation|prior messages).*(compressed|summarized|truncated)|automatically compress|system-reminder.*compress' "$TRANSCRIPT_PATH" 2>/dev/null; then
     echo 100
   else
     echo 0
@@ -114,8 +124,9 @@ fi
 # Record the new zone
 echo "$ZONE" > "$CACHE_FILE"
 
-# Create sentinel file on RED zone (once only)
+# Create sentinel file on RED zone (atomic write to avoid race conditions)
 if [ "$ZONE" = "RED" ] && [ ! -f "$SENTINEL_FILE" ]; then
+  TMPSENTINEL=$(mktemp "${SENTINEL_FILE}.tmp.XXXXXX" 2>/dev/null) || TMPSENTINEL="${SENTINEL_FILE}.tmp.$$"
   jq -n \
     --arg sid "$SESSION_ID" \
     --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -138,7 +149,8 @@ if [ "$ZONE" = "RED" ] && [ ! -f "$SENTINEL_FILE" ]; then
         tool_call_count: $tool_count,
         tool_density_pct: $tool_density_pct
       }
-    }' > "$SENTINEL_FILE"
+    }' > "$TMPSENTINEL" && mv -n "$TMPSENTINEL" "$SENTINEL_FILE" 2>/dev/null
+  rm -f "$TMPSENTINEL" 2>/dev/null
 fi
 
 # Build the warning message with score breakdown

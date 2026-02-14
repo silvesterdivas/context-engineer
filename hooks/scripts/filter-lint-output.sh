@@ -2,9 +2,12 @@
 # Token-saving filter for linter output (eslint, prettier, stylelint, etc.)
 # Reduces verbose lint output to error count + top issues only.
 
+# Bail if jq is not available
+command -v jq >/dev/null 2>&1 || exit 0
+
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""')
-RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""')
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null) || exit 0
+RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""' 2>/dev/null) || exit 0
 
 # Only filter lint commands
 case "$COMMAND" in
