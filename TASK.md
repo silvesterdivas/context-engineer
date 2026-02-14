@@ -14,7 +14,7 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 - Plugin uses bash scripts + Unix tools (jq, grep, sed, awk) — macOS/Linux/WSL only
 - Landing page split into 4 files (index.html, guide.html, styles.css, script.js) — all must stay under 500 lines
 - Scorecard output must be compact (12 lines) to fit Claude Code's collapsed view
-- Version is v1.1.1 across plugin.json, landing page, and README
+- Version is v1.1.2 across plugin.json, skills, landing page, and README
 
 ## Key Files
 - `index.html` — Landing page
@@ -53,3 +53,16 @@ Finalize the context-engineer Claude Code plugin for public release. Landing pag
 - **Windows support via Git Bash:** Confirmed Claude Code requires Git Bash on Windows, so all bash scripts work without changes
   - *Reasoning:* Investigated official docs — Git Bash is a hard requirement for Claude Code on Windows
   - *Rejected alternatives:* Node.js rewrite, PowerShell ports, POSIX sh rewrite — all unnecessary
+
+## Session Update — 2026-02-14
+
+### New Decisions
+- **Cap all signal percentages at 100:** FILE_SIZE_PCT was uncapped while MSG_COUNT_PCT and TOOL_DENSITY_PCT were capped, causing composite scores >100
+  - *Reasoning:* Consistency across all signals; uncapped values distorted the weighted average
+  - *Rejected alternatives:* Removing all caps (would make zone thresholds meaningless at high values)
+- **Narrow compression detection pattern:** Changed from broad `compressed|summarized|truncated` to context-aware patterns requiring words like "messages", "context", or "conversation" nearby
+  - *Reasoning:* Users discussing data compression topics triggered false 25-point score inflation
+  - *Rejected alternatives:* Disabling compression signal entirely (still useful for real compression), checking JSON structure (too fragile across transcript formats)
+- **Atomic sentinel file creation:** Use `mktemp` + `mv -n` instead of direct write
+  - *Reasoning:* Concurrent PostToolUse hook invocations could race on the sentinel check-then-write
+  - *Rejected alternatives:* File locking with `flock` (not available on all macOS versions), accepting the race (could cause duplicate RED zone messages)
