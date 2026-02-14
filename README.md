@@ -354,6 +354,33 @@ Run `/context-engineer:setup` then edit the generated section in your CLAUDE.md.
 ### Use agents with different models
 Copy the agent files to your project's `.claude/agents/` directory and modify the `model` frontmatter.
 
+## Changelog
+
+### v1.1.2
+
+- **Fix:** Cap `FILE_SIZE_PCT` at 100% — previously could exceed 100, distorting composite scores
+- **Fix:** Narrow compression detection to system markers only — no longer triggers on user content discussing "compressed" or "summarized" data
+- **Fix:** Tighten message count grep to match JSON structure (`"role":`) instead of any `"role"` string
+- **Fix:** Guard against empty transcript files in budget warning hook
+- **Fix:** Atomic sentinel file creation to prevent race conditions on concurrent hook invocations
+- **Fix:** Add `jq` availability check to all hook scripts — graceful exit instead of confusing errors
+- **Fix:** Add `jq` error handling in filter scripts for malformed JSON input
+
+### v1.1.1
+
+- **Fix:** Plugin root discovery for marketplace cache installs
+- **Fix:** Windows compatibility note in README
+
+### v1.1.0
+
+- **New:** Auto-pilot handoff system — context budget warning hook, auto-handoff skill, enhanced fresh-context templates
+- **New:** Composite scoring with 4 signals (file size, message count, compression, tool density)
+- **New:** Sentinel file on RED zone to trigger automatic handoff
+
+### v1.0.0
+
+- Initial release: budget zones, degradation detection, token-saving hooks, model switching, thinking control, code intelligence
+
 ## Credits
 
 Built by [Silvester Divas](https://github.com/silvesterdivas). Based on 9 context engineering techniques for Claude Code.
