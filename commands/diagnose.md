@@ -212,7 +212,7 @@ fi
 
 ### Step 2: MCP Server Hygiene (manual check)
 
-The scorecard doesn't check MCP servers — that requires inspecting the system context. Check yourself:
+The scorecard doesn't check MCP servers — that requires inspecting the system context. Check manually:
 - Count the number of MCP servers active in this session (visible in the system prompt)
 - Count the total MCP tools available
 - **PASS:** All servers are relevant, total tools < 20

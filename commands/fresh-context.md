@@ -1,5 +1,5 @@
 ---
-description: Create TASK.md + PROGRESS.md for a fresh context handoff (Ralph Loop pattern)
+description: Create TASK.md + PROGRESS.md for a fresh context handoff — continue complex tasks across sessions
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*)
 argument-hint: "<task description>"
 ---
