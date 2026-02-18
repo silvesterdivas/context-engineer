@@ -1,6 +1,6 @@
 ---
 name: Code Intelligence
-description: This skill provides guidance on using LSP-aware tools and code navigation efficiently, preferring structured code intelligence over brute-force text search when navigating codebases.
+description: This skill should be used when navigating an unfamiliar codebase, searching for symbol definitions or usages, finding related files, or when asked how to search code without reading entire files.
 version: 1.1.2
 user-invocable: false
 ---
@@ -22,7 +22,7 @@ Use the most efficient tool for each code navigation task. Structured code intel
 
 ### Understanding a File's Exports
 **Best:** `Grep` for `^export` in the specific file
-**Avoid:** Reading the entire file when you only need the API surface
+**Avoid:** Reading the entire file when only the API surface is needed
 
 ### Navigating Imports
 **Best:** `Grep` for `from ['"].*moduleName` to find who imports a module
@@ -49,7 +49,7 @@ Use the most efficient tool for each code navigation task. Structured code intel
 
 ## Principles
 
-1. **Pattern before content.** Find the right location with Grep/Glob, then Read only what you need.
+1. **Pattern before content.** Find the right location with Grep/Glob, then Read only what is needed.
 2. **File type filters save tokens.** Always use `glob` or `type` parameters in Grep to narrow scope.
 3. **Line ranges are free wins.** `Read` with `offset` and `limit` is dramatically cheaper than full file reads.
-4. **Delegate broad searches.** If you need to search across many files, use the investigator agent — it's cheap (Haiku) and keeps the results out of your context.
+4. **Delegate broad searches.** For broad searches spanning many files, use the investigator agent — it's cheap (Haiku) and keeps the results out of the main context.

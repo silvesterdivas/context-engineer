@@ -1,6 +1,6 @@
 ---
 name: Model Switching
-description: This skill provides guidance on which model to use for different task types, optimizing for cost and capability by matching task complexity to the appropriate model tier.
+description: This skill should be used when selecting a model for a task, when asking "which model should I use", "is this a Haiku or Sonnet task", "use haiku", or when delegating work to subagents and choosing a model tier.
 version: 1.1.2
 user-invocable: false
 ---
@@ -54,11 +54,11 @@ Reserve for tasks that require deep reasoning or creativity:
 
 ## Decision Heuristic
 
-Ask yourself:
+Apply this decision heuristic:
 1. **Is this a search or lookup?** → Haiku
 2. **Does this require reading and understanding code?** → Sonnet
 3. **Does this require creative reasoning or weighing trade-offs?** → Opus
-4. **Am I unsure?** → Start with Sonnet, escalate to Opus if stuck
+4. **Unsure?** → Start with Sonnet, escalate to Opus if stuck
 
 ## Subagent Delegation
 

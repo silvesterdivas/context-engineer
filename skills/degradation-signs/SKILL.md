@@ -1,13 +1,13 @@
 ---
 name: Degradation Signs
-description: This skill should be used when you notice yourself forgetting earlier context, repeating previous work, hallucinating file contents or function signatures, producing inconsistent code, looping on the same error, or when the user says "you already did that", "that's wrong", "you're hallucinating", or "context is degrading".
+description: This skill should be used when forgetting earlier context, looping on errors, producing inconsistent code, or when the user says "you already did that", "that's wrong", "you're hallucinating", or "context is degrading".
 version: 1.1.2
 user-invocable: true
 ---
 
 # Context Degradation Self-Diagnosis
 
-As your context window fills, your performance degrades in predictable ways. Monitor for these signs and take corrective action.
+Context performance degrades in predictable ways as the window fills. Monitor for these signs and take corrective action.
 
 ## Degradation Stages
 

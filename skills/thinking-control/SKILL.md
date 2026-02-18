@@ -1,13 +1,13 @@
 ---
 name: Thinking Control
-description: This skill provides guidance on how to calibrate thinking depth for different task types, avoiding over-thinking simple tasks and under-thinking complex ones.
+description: This skill should be used when calibrating reasoning depth for a task, when deciding whether to think deeply or act immediately, when asked about "thinking depth", "over-thinking", or "under-thinking".
 version: 1.1.2
 user-invocable: false
 ---
 
 # Thinking Depth Control
 
-Calibrate your reasoning effort to the task at hand. Deep thinking is powerful but expensive — both in tokens and latency.
+Calibrate reasoning effort to the task at hand. Deep thinking is powerful but expensive — both in tokens and latency.
 
 ## Thinking Levels
 
@@ -18,7 +18,7 @@ Calibrate your reasoning effort to the task at hand. Deep thinking is powerful b
 - Reading a file the user pointed to
 - Formatting or reorganizing existing content
 
-**Approach:** Act immediately. Don't deliberate on obvious actions.
+**Approach:** Act immediately. Avoid deliberating on obvious actions.
 
 ### Light Thinking
 **When:** Standard development tasks with clear patterns.
@@ -36,7 +36,7 @@ Calibrate your reasoning effort to the task at hand. Deep thinking is powerful b
 - Implementing a feature that touches several files
 - Writing code that must handle edge cases
 
-**Approach:** Consider 2-3 approaches before choosing. Read relevant code first. Plan your steps.
+**Approach:** Consider 2-3 approaches before choosing. Read relevant code first. Plan execution steps.
 
 ### Deep Thinking
 **When:** Complex tasks requiring careful reasoning.
@@ -46,7 +46,7 @@ Calibrate your reasoning effort to the task at hand. Deep thinking is powerful b
 - Resolving conflicting requirements
 - Understanding unfamiliar or complex codebases
 
-**Approach:** Thoroughly explore the problem space. Consider trade-offs. Read all relevant code. Plan in detail before writing. Review your own output.
+**Approach:** Thoroughly explore the problem space. Consider trade-offs. Read all relevant code. Plan in detail before writing. Review the output.
 
 ## Anti-Patterns
 

@@ -7,7 +7,7 @@ user-invocable: true
 
 # Context Budget Zones
 
-You are operating within a finite context window. Apply these budget zones to manage your context consumption throughout the conversation.
+Apply these budget zones to manage context consumption throughout the conversation.
 
 ## Zone Definitions
 
@@ -44,18 +44,18 @@ You are operating within a finite context window. Apply these budget zones to ma
 - Suggest the user start a new conversation
 - If code changes are in progress, commit or save the current state
 
-## How to Estimate Your Zone
+## How to Estimate the Zone
 
-You don't have a direct token counter, but use these heuristics:
+There is no direct token counter, but use these heuristics:
 - **Message count:** 20+ back-and-forth exchanges → likely YELLOW
 - **File reads:** 10+ files read → likely YELLOW; 20+ → likely ORANGE
 - **Code output:** Multiple large code blocks generated → adds up fast
 - **Tool calls:** 30+ tool calls → likely YELLOW; 50+ → likely ORANGE
-- **System compression:** If you notice earlier context being compressed → you're in ORANGE/RED
+- **System compression:** If earlier context appears compressed → the context is in ORANGE/RED
 
 ## Key Principles
 
-1. **Front-load research.** Do your exploration and reading early (GREEN zone) so you have context when you need it later.
-2. **Summarize as you go.** After reading a file, mentally note the key parts — don't plan to re-read it.
+1. **Front-load research.** Do exploration and reading early (GREEN zone) so context is available when needed later.
+2. **Summarize throughout.** After reading a file, mentally note the key parts — avoid re-reading it.
 3. **Delegate to save context.** The investigator agent (Haiku) is cheap and fast. Use it for broad searches.
 4. **Fresh context is not failure.** Creating TASK.md + PROGRESS.md and starting fresh is a feature, not a workaround.

@@ -1,13 +1,13 @@
 ---
 name: Auto-Pilot Handoff
-description: Always active. After completing atomic work units, checks for context budget exhaustion and guides handoff file creation.
+description: This skill should be used when the context budget hits RED zone, when the context-budget hook fires, or when it is time to save progress and create handoff files before starting a fresh conversation.
 version: 1.1.2
 user-invocable: false
 ---
 
 # Auto-Pilot Handoff
 
-This skill activates automatically when the context budget warning hook announces RED zone via a `[context-budget] RED ZONE` systemMessage. You do not invoke it — it governs your behavior after the hook fires.
+This skill activates automatically when the context budget warning hook announces RED zone via a `[context-budget] RED ZONE` systemMessage. Invocation is not required — this skill governs behavior after the hook fires.
 
 ## When Handoff is Triggered
 
