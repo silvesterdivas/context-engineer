@@ -396,7 +396,7 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ## Credits
 
-Built by [Silvester Divas](https://github.com/silvesterdivas). Based on 9 context engineering techniques for Claude Code.
+Built by [Silvester Divas](https://github.com/silvesterdivas). Based on 10 context engineering techniques for Claude Code.
 
 ## License
 
