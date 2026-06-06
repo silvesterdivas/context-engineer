@@ -376,6 +376,12 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ## Changelog
 
+### v1.2.1
+
+- **Docs:** Added an Updating section with the marketplace refresh and reinstall flow, plus auto-update guidance.
+- **Docs:** Documented how to invoke skills on demand, including the background Prompt Caching and Model Switching skills.
+- **Docs:** Noted the v1.2.0 session-cost line in the diagnose command reference.
+
 ### v1.2.0
 
 - **New:** Prompt Caching skill — cache-friendly workflow guidance (the biggest token-cost lever; cache reads cost ~0.1x)
