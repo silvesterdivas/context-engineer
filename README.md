@@ -38,6 +38,20 @@ claude plugin marketplace add silvesterdivas/context-engineer
 claude plugin install context-engineer@context-engineer-marketplace
 ```
 
+Prefer the interactive UI? Run `/plugin` inside Claude Code and use the Discover and Marketplaces tabs to do the same thing.
+
+## Updating
+
+context-engineer is a third-party marketplace, so updates are not automatic by default. When a new version ships, refresh the marketplace and reinstall from inside Claude Code:
+
+```
+/plugin marketplace update context-engineer-marketplace
+/plugin install context-engineer@context-engineer-marketplace
+/reload-plugins
+```
+
+`/reload-plugins` applies the new version in your current session without a full restart. To update automatically on startup instead, run `/plugin`, open the Marketplaces tab, select context-engineer-marketplace, and toggle Enable auto-update.
+
 ## Quick Start
 
 After installing, run the setup command to add context engineering rules to your project:
@@ -302,9 +316,11 @@ Creates TASK.md and PROGRESS.md with current progress so you can continue in a n
 Lists all configured MCP servers, estimates their token overhead, and flags unused ones that are wasting context space.
 
 ### `/context-engineer:diagnose`
-Runs a health scorecard checking: CLAUDE.md config, hooks, MCP hygiene, fresh context files, git state, and project structure. Produces a pass/warn/fail table with specific fix recommendations.
+Runs a health scorecard checking: CLAUDE.md config, hooks, MCP hygiene, fresh context files, git state, and project structure. Produces a pass/warn/fail table with specific fix recommendations. As of v1.2.0 it also prints a live session line (context size, cache-hit rate, and estimated cost per turn at Opus 4.8 rates) when an active transcript and `jq` are available.
 
 ## Skills Reference
+
+Two kinds of skills ship with the plugin. **User-invocable** skills (Budget Zones, Degradation Detection) can be called any time. **Background** skills (Code Intelligence, Model Switching, Prompt Caching, Thinking Control) activate automatically based on what you are doing; you can also trigger one on demand by describing the situation. For example, "how do I cut token costs?" or "make this cache-friendly" activates Prompt Caching, and "which model should I use?" activates Model Switching.
 
 ### Budget Zones (user-invocable)
 Defines four context usage zones — GREEN (free), YELLOW (selective), ORANGE (conserve), RED (wrap up). Activates automatically when context fills, or invoke manually to check your current zone.
