@@ -181,6 +181,46 @@ divider
 echo "  Score: ${PASS}/${TOTAL} passing -- ${ST}"
 divider
 echo "  Tokens saved: test ~80%  build ~90%  lint ~70%"
+
+# ── Live session cost (informational — from the active transcript) ──
+# Reads the latest Claude Code transcript for this project and estimates the
+# most-recent turn's cost + cache-hit rate at current Opus 4.8 rates.
+if command -v jq >/dev/null 2>&1; then
+  ABS_ROOT=$(cd "$PROJECT_ROOT" 2>/dev/null && pwd || echo "")
+  SESSION_LINE="  Session: n/a (no active transcript)"
+  if [[ -n "$ABS_ROOT" ]]; then
+    PROJ_DIR_NAME=$(echo "$ABS_ROOT" | sed 's#/#-#g')
+    TRANSCRIPT_DIR="$HOME/.claude/projects/$PROJ_DIR_NAME"
+    TRANSCRIPT=""
+    [[ -d "$TRANSCRIPT_DIR" ]] && TRANSCRIPT=$(ls -t "$TRANSCRIPT_DIR"/*.jsonl 2>/dev/null | head -1)
+    if [[ -n "$TRANSCRIPT" && -s "$TRANSCRIPT" ]]; then
+      LAST_ASSISTANT=$(grep '"type":"assistant"' "$TRANSCRIPT" 2>/dev/null | tail -1)
+      if [[ -n "$LAST_ASSISTANT" ]]; then
+        STATS=$(echo "$LAST_ASSISTANT" | jq -r '
+          .message.usage as $u
+          | (($u.input_tokens // 0)) as $in
+          | (($u.cache_read_input_tokens // 0)) as $cr
+          | (($u.cache_creation_input_tokens // 0)) as $cc
+          | (($u.output_tokens // 0)) as $out
+          | ($in + $cr + $cc) as $total
+          | (if $total > 0 then (($cr * 100 / $total) | floor) else 0 end) as $cachepct
+          | (($in*5 + $cr*0.5 + $cc*6.25 + $out*25) / 1000000) as $cost
+          | "\($total) \($cachepct) \($cost)"' 2>/dev/null)
+        if [[ -n "$STATS" ]]; then
+          T_TOTAL=$(echo "$STATS" | awk '{print $1}')
+          T_CACHE=$(echo "$STATS" | awk '{print $2}')
+          T_COST=$(echo "$STATS" | awk '{print $3}')
+          if [[ "${T_TOTAL:-0}" -gt 0 ]]; then
+            T_K=$((T_TOTAL / 1000))
+            COST_FMT=$(printf "%.2f" "$T_COST" 2>/dev/null || echo "$T_COST")
+            SESSION_LINE="  Session: ~${T_K}K ctx tokens, ${T_CACHE}% cached, est. \$${COST_FMT}/turn (Opus 4.8 rates)"
+          fi
+        fi
+      fi
+    fi
+  fi
+  echo "$SESSION_LINE"
+fi
 echo ""
 
 if [[ $FAIL -gt 0 ]]; then exit 2

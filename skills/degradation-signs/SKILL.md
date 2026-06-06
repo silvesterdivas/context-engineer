@@ -1,7 +1,7 @@
 ---
 name: Degradation Signs
 description: This skill should be used when forgetting earlier context, looping on errors, producing inconsistent code, or when the user says "you already did that", "that's wrong", "you're hallucinating", or "context is degrading".
-version: 1.1.2
+version: 1.2.0
 user-invocable: true
 ---
 
