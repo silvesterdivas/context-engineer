@@ -35,9 +35,13 @@ else
   LAST_ZONE="GREEN"
 fi
 
-BUDGET=200000
+# Context window budget. Current Claude Code runs on Opus 4.8 / Sonnet 4.6 with
+# a 1M-token window (Haiku 4.5 is 200K). Override via CONTEXT_ENGINEER_BUDGET.
+BUDGET="${CONTEXT_ENGINEER_BUDGET:-1000000}"
 CONTEXT_PCT=0
 SOURCE="unknown"
+CACHE_READ=0
+CACHE_PCT=0
 
 # --- Primary: Real token data from last assistant message ---
 # Each assistant message in the transcript has usage.input_tokens,
@@ -46,11 +50,17 @@ SOURCE="unknown"
 LAST_USAGE=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 | \
   jq '(.message.usage.input_tokens // 0) + (.message.usage.cache_read_input_tokens // 0) + (.message.usage.cache_creation_input_tokens // 0)' 2>/dev/null) || LAST_USAGE=0
 
+# Cache-read tokens (served at ~0.1x input cost) — surfaced as a savings signal.
+CACHE_READ=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 | \
+  jq '(.message.usage.cache_read_input_tokens // 0)' 2>/dev/null) || CACHE_READ=0
+[ -n "$CACHE_READ" ] || CACHE_READ=0
+
 if [ -n "$LAST_USAGE" ] && [ "$LAST_USAGE" -gt 0 ]; then
   CONTEXT_PCT=$((LAST_USAGE * 100 / BUDGET))
   if [ "$CONTEXT_PCT" -gt 100 ]; then
     CONTEXT_PCT=100
   fi
+  CACHE_PCT=$((CACHE_READ * 100 / LAST_USAGE))
   SOURCE="tokens"
 else
   # --- Fallback: Heuristic scoring when token data unavailable ---
@@ -60,11 +70,11 @@ else
   [ "$FILE_SIZE_PCT" -gt 100 ] && FILE_SIZE_PCT=100
 
   MSG_COUNT=$(grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT=0
-  MSG_COUNT_PCT=$((MSG_COUNT * 100 / 50))
+  MSG_COUNT_PCT=$((MSG_COUNT * 100 / 250))
   [ "$MSG_COUNT_PCT" -gt 100 ] && MSG_COUNT_PCT=100
 
   TOOL_COUNT=$(grep -c '"tool_use"' "$TRANSCRIPT_PATH" 2>/dev/null) || TOOL_COUNT=0
-  TOOL_DENSITY_PCT=$((TOOL_COUNT * 100 / 60))
+  TOOL_DENSITY_PCT=$((TOOL_COUNT * 100 / 300))
   [ "$TOOL_DENSITY_PCT" -gt 100 ] && TOOL_DENSITY_PCT=100
 
   CONTEXT_PCT=$(( (FILE_SIZE_PCT * 40 + MSG_COUNT_PCT * 35 + TOOL_DENSITY_PCT * 25) / 100 ))
@@ -119,20 +129,25 @@ if [ "$ZONE" = "RED" ] && [ ! -f "$SENTINEL_FILE" ]; then
     --argjson score "$CONTEXT_PCT" \
     --arg source "$SOURCE" \
     --argjson tokens "${LAST_USAGE:-0}" \
+    --argjson cache_read "${CACHE_READ:-0}" \
+    --argjson cache_pct "${CACHE_PCT:-0}" \
+    --argjson budget "$BUDGET" \
     '{
       session_id: $sid,
       timestamp: $ts,
       context_pct: $score,
       source: $source,
       total_input_tokens: $tokens,
-      budget: 200000
+      cache_read_input_tokens: $cache_read,
+      cache_pct: $cache_pct,
+      budget: $budget
     }' > "$TMPSENTINEL" && mv -n "$TMPSENTINEL" "$SENTINEL_FILE" 2>/dev/null
   rm -f "$TMPSENTINEL" 2>/dev/null
 fi
 
 # Build the warning message
 if [ "$SOURCE" = "tokens" ]; then
-  BREAKDOWN="[${LAST_USAGE}/${BUDGET} tokens, source=actual]"
+  BREAKDOWN="[${LAST_USAGE}/${BUDGET} tokens, ${CACHE_PCT}% cached]"
 else
   BREAKDOWN="[${CONTEXT_PCT}% estimated, source=heuristic]"
 fi

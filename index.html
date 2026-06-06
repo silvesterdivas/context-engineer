@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>context-engineer — Claude Code Plugin</title>
-<meta name="description" content="9 context engineering techniques for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, and more. One plugin, zero wasted tokens.">
+<meta name="description" content="10 context engineering techniques for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, prompt caching, and more. One plugin, zero wasted tokens.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
 <!-- Status bar -->
 <div class="status-bar">
   <div class="status-bar__left">
-    <span>context-engineer v1.1.2</span>
+    <span>context-engineer v1.2.0</span>
     <span class="status-bar__dot"></span>
     <span>active</span>
   </div>
@@ -33,7 +33,7 @@
   <header class="header">
     <div class="header__eyebrow">Claude Code Plugin</div>
     <h1 class="header__title">Context engineering, <em>shipped.</em></h1>
-    <p class="header__desc">One plugin. 9 techniques. Zero wasted tokens.</p>
+    <p class="header__desc">One plugin. 10 techniques. Zero wasted tokens.</p>
     <div class="header__actions">
       <a href="#install" class="btn">Install Now</a>
       <a href="#techniques" class="btn btn--outline">See What's Inside</a>
@@ -52,7 +52,7 @@
       </div>
       <div class="terminal__body">
 <div class="terminal__line" style="animation-delay:0.4s"><span class="t-cyan">┌────────────────────────────────────────────────────────────┐</span></div>
-<div class="terminal__line" style="animation-delay:0.5s"><span class="t-cyan">│</span> <span class="t-bold">context-engineer</span> v1.1.2  <span class="t-dim">·</span>  Health Scorecard              <span class="t-cyan">│</span></div>
+<div class="terminal__line" style="animation-delay:0.5s"><span class="t-cyan">│</span> <span class="t-bold">context-engineer</span> v1.2.0  <span class="t-dim">·</span>  Health Scorecard              <span class="t-cyan">│</span></div>
 <div class="terminal__line" style="animation-delay:0.6s"><span class="t-cyan">└────────────────────────────────────────────────────────────┘</span></div>
 <div class="terminal__line" style="animation-delay:0.7s">&nbsp;</div>
 <div class="terminal__line" style="animation-delay:0.8s"><span class="t-dot-pass">●</span> <span class="t-bold">CLAUDE.md</span>              Budget <span class="t-green">✓</span>  Fresh context <span class="t-green">✓</span>  Tools <span class="t-green">✓</span></div>
@@ -158,7 +158,7 @@
     <div class="section__label">
       <span class="section__label-num">02</span> What's Inside
     </div>
-    <h2 class="section__title">9 techniques, one install.</h2>
+    <h2 class="section__title">10 techniques, one install.</h2>
     <p class="section__text">Skills, hooks, commands, and agents working together to keep your context clean and your output sharp.</p>
 
     <div class="techniques-grid">
@@ -184,6 +184,12 @@
         <span class="tech-card__icon">&#x1F504;</span>
         <div class="tech-card__name">Model Switching</div>
         <div class="tech-card__desc">Task-to-model mapping. Haiku for search, Opus for architecture.</div>
+        <span class="tech-card__tag tech-card__tag--skill">Skill</span>
+      </div>
+      <div class="tech-card">
+        <span class="tech-card__icon">&#x1F4B0;</span>
+        <div class="tech-card__name">Prompt Caching</div>
+        <div class="tech-card__desc">Cache-friendly workflow. Cache reads cost ~0.1x &mdash; the biggest cost lever.</div>
         <span class="tech-card__tag tech-card__tag--skill">Skill</span>
       </div>
       <div class="tech-card">
@@ -370,7 +376,7 @@ claude plugin install context-engineer@context-engineer-marketplace" onclick="co
   <!-- Footer -->
   <footer class="footer">
     <div class="footer__left">
-      <span>context-engineer v1.1.2</span>
+      <span>context-engineer v1.2.0</span>
       <span>&mdash;</span>
       <span>Built by Silvester Divas</span>
     </div>

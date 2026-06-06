@@ -201,6 +201,36 @@ divider
 echo "  Score: ${PASS}/${TOTAL} passing -- ${ST}"
 divider
 echo "  Tokens saved: test ~80%  build ~90%  lint ~70%"
+
+# ── Live session cost (informational — from the active transcript) ──
+if command -v jq >/dev/null 2>&1; then
+  ABS_ROOT=$(cd "$PROJECT_ROOT" 2>/dev/null && pwd || echo "")
+  SESSION_LINE="  Session: n/a (no active transcript)"
+  if [[ -n "$ABS_ROOT" ]]; then
+    PROJ_DIR_NAME=$(echo "$ABS_ROOT" | sed "s#/#-#g")
+    TRANSCRIPT_DIR="$HOME/.claude/projects/$PROJ_DIR_NAME"
+    TRANSCRIPT=""
+    [[ -d "$TRANSCRIPT_DIR" ]] && TRANSCRIPT=$(ls -t "$TRANSCRIPT_DIR"/*.jsonl 2>/dev/null | head -1)
+    if [[ -n "$TRANSCRIPT" && -s "$TRANSCRIPT" ]]; then
+      LAST_ASSISTANT=$(grep "\"type\":\"assistant\"" "$TRANSCRIPT" 2>/dev/null | tail -1)
+      if [[ -n "$LAST_ASSISTANT" ]]; then
+        IN=$(echo "$LAST_ASSISTANT" | jq "(.message.usage.input_tokens // 0)" 2>/dev/null)
+        CR=$(echo "$LAST_ASSISTANT" | jq "(.message.usage.cache_read_input_tokens // 0)" 2>/dev/null)
+        CC=$(echo "$LAST_ASSISTANT" | jq "(.message.usage.cache_creation_input_tokens // 0)" 2>/dev/null)
+        OUT=$(echo "$LAST_ASSISTANT" | jq "(.message.usage.output_tokens // 0)" 2>/dev/null)
+        IN=${IN:-0}; CR=${CR:-0}; CC=${CC:-0}; OUT=${OUT:-0}
+        TOTAL=$((IN + CR + CC))
+        if [[ $TOTAL -gt 0 ]]; then
+          CACHEPCT=$((CR * 100 / TOTAL))
+          T_K=$((TOTAL / 1000))
+          COST=$(awk "BEGIN{printf \"%.2f\", ($IN*5 + $CR*0.5 + $CC*6.25 + $OUT*25)/1000000}")
+          SESSION_LINE="  Session: ~${T_K}K ctx tokens, ${CACHEPCT}% cached, est. \$${COST}/turn (Opus 4.8 rates)"
+        fi
+      fi
+    fi
+  fi
+  echo "$SESSION_LINE"
+fi
 echo ""
 
 if [[ $FAIL -gt 0 ]]; then exit 2

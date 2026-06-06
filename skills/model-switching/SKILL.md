@@ -1,13 +1,13 @@
 ---
 name: Model Switching
 description: This skill should be used when selecting a model for a task, when asking "which model should I use", "is this a Haiku or Sonnet task", "use haiku", or when delegating work to subagents and choosing a model tier.
-version: 1.1.2
+version: 1.2.0
 user-invocable: false
 ---
 
 # Model Switching Guide
 
-Match task complexity to the right model. Using Opus for simple searches wastes money; using Haiku for architecture decisions wastes time.
+Match task complexity to the right model. Opus is now affordable enough for most work (~5x Haiku, not 25x like older pricing), so the main reasons to drop to Haiku or Sonnet are **speed and context conservation**, not raw cost. Using Haiku for architecture decisions wastes time; using Opus for a trivial grep wastes a little money and some latency.
 
 ## Model-Task Matrix
 
@@ -44,13 +44,15 @@ Reserve for tasks that require deep reasoning or creativity:
 
 **Use via:** Default model in most configurations, or explicit `model: "opus"`.
 
-## Cost Ratios (Approximate)
+## Cost Ratios (current pricing, per 1M tokens)
 
-| Model | Relative Cost | Speed |
-|-------|--------------|-------|
-| Haiku | 1x | Fastest |
-| Sonnet | 5x | Medium |
-| Opus | 25x | Slowest |
+| Model | Input / Output | Relative cost | Speed |
+|-------|----------------|---------------|-------|
+| Haiku 4.5  | $1 / $5   | 1x  | Fastest |
+| Sonnet 4.6 | $3 / $15  | ~3x | Medium  |
+| Opus 4.8   | $5 / $25  | ~5x | Slowest |
+
+Opus is ~5x Haiku today (it was 25x under older Opus pricing), so switching models down is a **weaker cost lever** than it used to be. The dominant way to cut token cost now is **prompt caching** — cache reads cost ~0.1x the input rate, so a cache-friendly workflow can save far more than any model downgrade. See the prompt-caching skill.
 
 ## Decision Heuristic
 

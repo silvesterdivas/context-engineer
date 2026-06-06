@@ -18,7 +18,7 @@
 <!-- Status bar -->
 <div class="status-bar">
   <div class="status-bar__left">
-    <span>context-engineer v1.1.2</span>
+    <span>context-engineer v1.2.0</span>
     <span class="status-bar__dot"></span>
     <span>active</span>
   </div>
@@ -247,26 +247,30 @@
 
     <table class="commands-table">
       <thead>
-        <tr><th>Task Type</th><th>Model</th><th>Cost</th></tr>
+        <tr><th>Task Type</th><th>Model</th><th>Price (in/out per 1M)</th><th>Relative cost</th></tr>
       </thead>
       <tbody>
         <tr>
           <td>File search, grep, quick lookups, simple edits</td>
-          <td>Haiku</td>
+          <td>Haiku 4.5</td>
+          <td>$1 / $5</td>
           <td>1x</td>
         </tr>
         <tr>
           <td>Code review, refactoring, multi-file changes</td>
-          <td>Sonnet</td>
-          <td>5x</td>
+          <td>Sonnet 4.6</td>
+          <td>$3 / $15</td>
+          <td>~3x</td>
         </tr>
         <tr>
           <td>Architecture decisions, complex debugging, security review</td>
-          <td>Opus</td>
-          <td>25x</td>
+          <td>Opus 4.8</td>
+          <td>$5 / $25</td>
+          <td>~5x</td>
         </tr>
       </tbody>
     </table>
+    <p style="margin-top: 0.75rem; color: #6b7280; font-size: 0.9rem;">Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be — prompt caching (cache reads ~0.1x) saves far more.</p>
 
     <div style="margin-top: 32px;">
       <h3 class="section__title" style="font-size: 1.4rem;">Degradation detection.</h3>
@@ -376,7 +380,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer__left">
-      <span>context-engineer v1.1.2</span>
+      <span>context-engineer v1.2.0</span>
       <span>&mdash;</span>
       <span>Built by Silvester Divas</span>
     </div>

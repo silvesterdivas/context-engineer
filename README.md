@@ -2,7 +2,7 @@
 
 Context engineering best practices for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, and more.
 
-**9 techniques** packaged as one installable plugin — no configuration needed.
+**10 techniques** packaged as one installable plugin — no configuration needed.
 
 <p align="center">
   <img src="docs/scorecard-preview.svg" alt="context-engineer health scorecard" width="680">
@@ -16,6 +16,7 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 | Degradation Detection | Skill | Self-diagnosis when Claude starts forgetting |
 | Code Intelligence | Skill (background) | Efficient tool selection for code navigation |
 | Model Switching | Skill (background) | Task-to-model mapping (Haiku/Sonnet/Opus) |
+| Prompt Caching | Skill (background) | Cache-friendly workflow — cache reads cost ~0.1x |
 | Thinking Control | Skill (background) | Calibrated reasoning depth per task type |
 | Test Output Filter | Hook | ~80% token savings on test runs |
 | Build Output Filter | Hook | ~90% token savings on builds |
@@ -161,7 +162,7 @@ Your workflow doesn't change. You just get dramatically better sessions.
 
 ### Tips for existing projects
 
-1. **Your first session will feel different.** Sessions that used to die at 45 minutes last much longer. The hooks silently save thousands of tokens per test/build/lint cycle.
+1. **Your first session will feel different.** The hooks silently save thousands of tokens per test/build/lint cycle, and the budget zones now track against Claude Code's ~1M-token context window, so sessions run much longer before handoff.
 2. **Watch the budget zones on large codebases.** You'll hit YELLOW and ORANGE faster because there's more code to read. The budget zone skill automatically guides Claude to be selective.
 3. **Use fresh context for big refactors.** Run `/context-engineer:fresh-context "refactoring the payment module"` before starting. When context gets heavy, TASK.md and PROGRESS.md are ready for a clean handoff.
 4. **Don't fight the RED zone.** When context exceeds 85%, the plugin guides Claude to wrap up. A fresh session with handoff files outperforms a degraded session every time.
@@ -179,7 +180,7 @@ Context usage determines how Claude behaves:
 | ORANGE | 75-85% | Conservation mode. Line ranges only, targeted searches, delegates to subagents. |
 | RED | > 85% | Wrap up. Finishes current task, creates TASK.md + PROGRESS.md, suggests new session. |
 
-Budget zones activate automatically. No configuration needed.
+Percentages are measured against Claude Code's context window (~1M tokens on Opus 4.8 / Sonnet 4.6). The budget hook reads real token usage from the transcript; override the assumed window with the `CONTEXT_ENGINEER_BUDGET` environment variable. Budget zones activate automatically. No configuration needed.
 
 ---
 
@@ -220,13 +221,13 @@ Fresh context, full awareness, zero token baggage.
 
 The plugin guides Claude to use the right model for each task:
 
-| Task Type | Model | Cost |
-|-----------|-------|------|
-| File search, grep, quick lookups | Haiku | 1x |
-| Code review, refactoring, multi-file changes | Sonnet | 5x |
-| Architecture decisions, complex debugging, security review | Opus | 25x |
+| Task Type | Model | Price (in/out per 1M) | Relative cost |
+|-----------|-------|-----------------------|---------------|
+| File search, grep, quick lookups | Haiku 4.5 | $1 / $5 | 1x |
+| Code review, refactoring, multi-file changes | Sonnet 4.6 | $3 / $15 | ~3x |
+| Architecture decisions, complex debugging, security review | Opus 4.8 | $5 / $25 | ~5x |
 
-This works automatically through the model switching skill.
+This works automatically through the model switching skill. Note that Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be — **prompt caching** (cache reads ~0.1x) saves far more.
 
 ---
 
@@ -315,7 +316,10 @@ Four stages of context degradation with specific signs and corrective actions. H
 Guides efficient tool selection: when to Grep vs Read, how to navigate imports and type hierarchies, token cost comparisons for different navigation approaches.
 
 ### Model Switching (background)
-Maps task types to optimal models. Haiku for searches, Sonnet for reviews, Opus for architecture. Includes cost ratios and delegation guidance.
+Maps task types to optimal models. Haiku for searches, Sonnet for reviews, Opus for architecture. Includes current pricing (Haiku $1/$5, Sonnet $3/$15, Opus $5/$25 per 1M) and delegation guidance.
+
+### Prompt Caching (background)
+Cache-friendly workflow guidance: caching is a prefix match, so keep CLAUDE.md and early context stable, batch edits, and avoid re-reading early files. Cache reads cost ~0.1x, the biggest token-cost lever there is.
 
 ### Thinking Control (background)
 Calibrates reasoning depth: minimal for mechanical tasks, deep for security/architecture. Prevents over-thinking simple tasks and under-thinking complex ones.
@@ -355,6 +359,15 @@ Run `/context-engineer:setup` then edit the generated section in your CLAUDE.md.
 Copy the agent files to your project's `.claude/agents/` directory and modify the `model` frontmatter.
 
 ## Changelog
+
+### v1.2.0
+
+- **New:** Prompt Caching skill — cache-friendly workflow guidance (the biggest token-cost lever; cache reads cost ~0.1x)
+- **New:** Cache-hit reporting — the budget warning hook now surfaces `% cached` in zone warnings and the RED handoff sentinel
+- **New:** Session cost estimate — `/context-engineer:diagnose` and the scorecard show current context size, cache-hit rate, and estimated cost at current Opus 4.8 rates
+- **Update:** Context window budget raised from 200K to ~1M to match current Claude Code (Opus 4.8 / Sonnet 4.6); now overridable via `CONTEXT_ENGINEER_BUDGET`
+- **Update:** Corrected model pricing — Haiku $1/$5, Sonnet $3/$15, Opus $5/$25 per 1M (Opus is ~5x Haiku, was listed as 25x)
+- **Update:** Rescaled heuristic fallback constants in the budget hook for the larger window
 
 ### v1.1.2
 

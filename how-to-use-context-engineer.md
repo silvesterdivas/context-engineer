@@ -221,6 +221,7 @@ Hooks only activate when output exceeds 40 lines. Short outputs pass through unc
 | **Degradation Detection** | Catches when Claude starts forgetting, hallucinating, or looping | When quality signals drop |
 | **Code Intelligence** | Guides efficient tool selection (Grep vs Read vs Glob) | When Claude navigates the codebase |
 | **Model Switching** | Routes tasks to the right model (Haiku/Sonnet/Opus) | When Claude spawns subagents |
+| **Prompt Caching** | Keeps the prompt cache warm (cache reads ~0.1x) for big cost savings | Throughout a long session |
 | **Thinking Control** | Calibrates reasoning depth based on task complexity | Every task |
 
 ### Commands (Manual — You Invoke When Needed)
@@ -330,11 +331,11 @@ Context engineer guides Claude to use subagents efficiently:
 
 | Task Type | Model | Why |
 |-----------|-------|-----|
-| File search, grep, quick lookups | **Haiku** | Fast, cheap, perfect for mechanical tasks. 1x cost. |
-| Code review, refactoring, multi-file changes | **Sonnet** | Balanced capability and cost. 5x cost. |
-| Architecture decisions, complex debugging, security review | **Opus** | Maximum reasoning power for decisions that matter. 25x cost. |
+| File search, grep, quick lookups | **Haiku 4.5** | Fast and cheap ($1/$5 per 1M). Perfect for mechanical tasks. 1x cost. |
+| Code review, refactoring, multi-file changes | **Sonnet 4.6** | Balanced capability and cost ($3/$15 per 1M). ~3x cost. |
+| Architecture decisions, complex debugging, security review | **Opus 4.8** | Maximum reasoning power ($5/$25 per 1M). ~5x cost. |
 
-You don't configure this manually. The model switching skill guides Claude's decisions about when to spawn subagents and which model to use for each task type.
+You don't configure this manually. The model switching skill guides Claude's decisions about when to spawn subagents and which model to use for each task type. With Opus now ~5x Haiku (not 25x), the bigger cost lever is prompt caching — cache reads cost ~0.1x, so keeping early context stable saves more than any model downgrade.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: Code Intelligence
 description: This skill should be used when navigating an unfamiliar codebase, searching for symbol definitions or usages, finding related files, or when asked how to search code without reading entire files.
-version: 1.1.2
+version: 1.2.0
 user-invocable: false
 ---
 
