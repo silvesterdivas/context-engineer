@@ -2,7 +2,7 @@
 
 Context engineering best practices for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, and more.
 
-**10 techniques** packaged as one installable plugin — no configuration needed.
+**10 techniques** packaged as one installable plugin - no configuration needed.
 
 <p align="center">
   <img src="docs/scorecard-preview.svg" alt="context-engineer health scorecard" width="680">
@@ -16,7 +16,7 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 | Degradation Detection | Skill | Self-diagnosis when Claude starts forgetting |
 | Code Intelligence | Skill (background) | Efficient tool selection for code navigation |
 | Model Switching | Skill (background) | Task-to-model mapping (Haiku/Sonnet/Opus) |
-| Prompt Caching | Skill (background) | Cache-friendly workflow — cache reads cost ~0.1x |
+| Prompt Caching | Skill (background) | Cache-friendly workflow - cache reads cost ~0.1x |
 | Thinking Control | Skill (background) | Calibrated reasoning depth per task type |
 | Test Output Filter | Hook | ~80% token savings on test runs |
 | Build Output Filter | Hook | ~90% token savings on builds |
@@ -25,7 +25,7 @@ Context engineering best practices for Claude Code. Budget zones, degradation de
 
 ## Requirements
 
-- **macOS**, **Linux**, or **Windows** (via WSL or Git Bash — both required by Claude Code)
+- **macOS**, **Linux**, or **Windows** (via WSL or Git Bash - both required by Claude Code)
 - `jq` (pre-installed on most dev machines; `brew install jq` / `apt install jq` if missing)
 
 ## Installation
@@ -113,15 +113,15 @@ That's it. Here's what happens behind the scenes:
 
 **When you run tests** (`npm test`):
 - Before: Claude sees all 200 lines of test output (196 passed, 4 failed)
-- After: Claude sees only the 4 failures + summary — **~80% token savings**
+- After: Claude sees only the 4 failures + summary - **~80% token savings**
 
 **When you run a build** (`npm run build`):
 - Before: Claude reads 500 lines of webpack output
-- After: Claude sees only errors and warnings — **~90% token savings**
+- After: Claude sees only errors and warnings - **~90% token savings**
 
 **When you run a linter** (`npx eslint src/`):
 - Before: Claude processes 150 lines of lint output
-- After: Claude sees only the problems — **~70% token savings**
+- After: Claude sees only the problems - **~70% token savings**
 
 Hooks only activate when output exceeds 40 lines. Short outputs pass through unchanged.
 
@@ -135,7 +135,7 @@ Hooks only activate when output exceeds 40 lines. Short outputs pass through unc
 
 ## How to Use: Existing Projects
 
-You have a codebase — maybe it already has a CLAUDE.md, maybe it doesn't. Context-engineer fits right in.
+You have a codebase - maybe it already has a CLAUDE.md, maybe it doesn't. Context-engineer fits right in.
 
 ### Step 1: Run setup
 
@@ -166,9 +166,9 @@ You'll get a table showing each server's name, tool count, estimated token overh
 ```
 
 For existing projects, pay attention to:
-- **Token-saving hooks** — are they matching your build tools?
-- **CLAUDE.md configuration** — did the rules integrate cleanly with your existing content?
-- **Project structure** — the scorecard may flag reorganization opportunities.
+- **Token-saving hooks** - are they matching your build tools?
+- **CLAUDE.md configuration** - did the rules integrate cleanly with your existing content?
+- **Project structure** - the scorecard may flag reorganization opportunities.
 
 ### Step 4: Start working
 
@@ -216,8 +216,8 @@ Complex tasks survive across sessions using handoff files.
 
 Creates two files:
 
-- **TASK.md** — Goal, constraints, key files, decisions made, current context
-- **PROGRESS.md** — Steps completed, current state, next steps, blockers
+- **TASK.md** - Goal, constraints, key files, decisions made, current context
+- **PROGRESS.md** - Steps completed, current state, next steps, blockers
 
 ### Continuing in a new session
 
@@ -241,7 +241,7 @@ The plugin guides Claude to use the right model for each task:
 | Code review, refactoring, multi-file changes | Sonnet 4.6 | $3 / $15 | ~3x |
 | Architecture decisions, complex debugging, security review | Opus 4.8 | $5 / $25 | ~5x |
 
-This works automatically through the model switching skill. Note that Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be — **prompt caching** (cache reads ~0.1x) saves far more.
+This works automatically through the model switching skill. Note that Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be - **prompt caching** (cache reads ~0.1x) saves far more.
 
 ---
 
@@ -263,8 +263,8 @@ When degradation is detected, the skill flags it in real time so you can act bef
 ## Daily Workflow Cheat Sheet
 
 **Starting a session:**
-1. Open Claude Code in your project — CLAUDE.md loads automatically
-2. Hooks are already active — no action needed
+1. Open Claude Code in your project - CLAUDE.md loads automatically
+2. Hooks are already active - no action needed
 3. Continuing previous work? "Read TASK.md and PROGRESS.md and pick up where we left off"
 
 **During a session:**
@@ -323,7 +323,7 @@ Runs a health scorecard checking: CLAUDE.md config, hooks, MCP hygiene, fresh co
 Two kinds of skills ship with the plugin. **User-invocable** skills (Budget Zones, Degradation Detection) can be called any time. **Background** skills (Code Intelligence, Model Switching, Prompt Caching, Thinking Control) activate automatically based on what you are doing; you can also trigger one on demand by describing the situation. For example, "how do I cut token costs?" or "make this cache-friendly" activates Prompt Caching, and "which model should I use?" activates Model Switching.
 
 ### Budget Zones (user-invocable)
-Defines four context usage zones — GREEN (free), YELLOW (selective), ORANGE (conserve), RED (wrap up). Activates automatically when context fills, or invoke manually to check your current zone.
+Defines four context usage zones - GREEN (free), YELLOW (selective), ORANGE (conserve), RED (wrap up). Activates automatically when context fills, or invoke manually to check your current zone.
 
 ### Degradation Detection (user-invocable)
 Four stages of context degradation with specific signs and corrective actions. Helps Claude recognize when it's starting to forget, hallucinate, or loop.
@@ -391,21 +391,21 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ### v1.2.0
 
-- **New:** Prompt Caching skill — cache-friendly workflow guidance (the biggest token-cost lever; cache reads cost ~0.1x)
-- **New:** Cache-hit reporting — the budget warning hook now surfaces `% cached` in zone warnings and the RED handoff sentinel
-- **New:** Session cost estimate — `/context-engineer:diagnose` and the scorecard show current context size, cache-hit rate, and estimated cost at current Opus 4.8 rates
+- **New:** Prompt Caching skill - cache-friendly workflow guidance (the biggest token-cost lever; cache reads cost ~0.1x)
+- **New:** Cache-hit reporting - the budget warning hook now surfaces `% cached` in zone warnings and the RED handoff sentinel
+- **New:** Session cost estimate - `/context-engineer:diagnose` and the scorecard show current context size, cache-hit rate, and estimated cost at current Opus 4.8 rates
 - **Update:** Context window budget raised from 200K to ~1M to match current Claude Code (Opus 4.8 / Sonnet 4.6); now overridable via `CONTEXT_ENGINEER_BUDGET`
-- **Update:** Corrected model pricing — Haiku $1/$5, Sonnet $3/$15, Opus $5/$25 per 1M (Opus is ~5x Haiku, was listed as 25x)
+- **Update:** Corrected model pricing - Haiku $1/$5, Sonnet $3/$15, Opus $5/$25 per 1M (Opus is ~5x Haiku, was listed as 25x)
 - **Update:** Rescaled heuristic fallback constants in the budget hook for the larger window
 
 ### v1.1.2
 
-- **Fix:** Cap `FILE_SIZE_PCT` at 100% — previously could exceed 100, distorting composite scores
-- **Fix:** Narrow compression detection to system markers only — no longer triggers on user content discussing "compressed" or "summarized" data
+- **Fix:** Cap `FILE_SIZE_PCT` at 100% - previously could exceed 100, distorting composite scores
+- **Fix:** Narrow compression detection to system markers only - no longer triggers on user content discussing "compressed" or "summarized" data
 - **Fix:** Tighten message count grep to match JSON structure (`"role":`) instead of any `"role"` string
 - **Fix:** Guard against empty transcript files in budget warning hook
 - **Fix:** Atomic sentinel file creation to prevent race conditions on concurrent hook invocations
-- **Fix:** Add `jq` availability check to all hook scripts — graceful exit instead of confusing errors
+- **Fix:** Add `jq` availability check to all hook scripts - graceful exit instead of confusing errors
 - **Fix:** Add `jq` error handling in filter scripts for malformed JSON input
 
 ### v1.1.1
@@ -415,7 +415,7 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ### v1.1.0
 
-- **New:** Auto-pilot handoff system — context budget warning hook, auto-handoff skill, enhanced fresh-context templates
+- **New:** Auto-pilot handoff system - context budget warning hook, auto-handoff skill, enhanced fresh-context templates
 - **New:** Composite scoring with 4 signals (file size, message count, compression, tool density)
 - **New:** Sentinel file on RED zone to trigger automatic handoff
 
