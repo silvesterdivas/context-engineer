@@ -100,6 +100,12 @@ out=$(printf '%s' "$budget_input" | bash "$HOOKS/context-budget-warning.sh")
 rm -f "$tr_file" "/tmp/context-budget-$sid"
 assert_empty "budget: under 15-turn floor stays silent" "$out"
 
+# --- scripts/scorecard.sh (the script /context-engineer:diagnose locates and runs) ---
+sc_out=$(bash "$ROOT/scripts/scorecard.sh" "$ROOT" 2>/dev/null)
+assert_contains "scorecard: renders the health scorecard" "$sc_out" "Health Scorecard"
+assert_contains "scorecard: prints a score line"          "$sc_out" "Score:"
+assert_contains "scorecard: prints the token-savings line" "$sc_out" "Tokens saved"
+
 echo "---------------------------"
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]

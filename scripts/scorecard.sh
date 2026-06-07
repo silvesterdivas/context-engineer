@@ -1,19 +1,37 @@
 #!/usr/bin/env bash
-# scorecard.sh — Health scorecard for context-engineer
+# scorecard.sh - Health scorecard for context-engineer
 # Usage: bash scorecard.sh [project-root]
+#
+# Single source of truth for the /context-engineer:diagnose scorecard.
 
 PROJECT_ROOT="${1:-.}"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ── Counters ──
 PASS=0; WARN=0; FAIL=0; TOTAL=4
 
+# ── Find plugin root (search common locations) ──
+# Works whether run from the repo, an installed plugin dir, or the marketplace cache.
+PLUGIN_ROOT=""
+CACHE_LATEST=$(ls -d "$HOME/.claude/plugins/cache/context-engineer-marketplace/context-engineer"/*/ 2>/dev/null | sort -rV | head -1)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd 2>/dev/null)"
+for candidate in \
+  "${CLAUDE_PLUGIN_ROOT:-}" \
+  "$SCRIPT_DIR/.." \
+  "$HOME/.claude/plugins/context-engineer" \
+  "$HOME/.claude/plugins/context-engineer-marketplace/context-engineer" \
+  "$CACHE_LATEST" \
+  "$PROJECT_ROOT"; do
+  [[ -n "$candidate" && -f "$candidate/hooks/scripts/filter-test-output.sh" ]] && PLUGIN_ROOT="$candidate" && break
+done
+
 # ── Version ──
 VER="?.?.?"
-if [[ -f "$PLUGIN_ROOT/.claude-plugin/plugin.json" ]]; then
-  VER=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$PLUGIN_ROOT/.claude-plugin/plugin.json" | grep -o '[0-9][0-9.]*' || echo "?.?.?")
-fi
+for pj in "$PLUGIN_ROOT/.claude-plugin/plugin.json" "$PROJECT_ROOT/.claude-plugin/plugin.json"; do
+  if [[ -f "$pj" ]]; then
+    VER=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$pj" | grep -o '[0-9][0-9.]*' || echo "?.?.?")
+    break
+  fi
+done
 
 # ── Helpers ──
 divider() { echo "  ──────────────────────────────────────────────────"; }
@@ -56,9 +74,12 @@ else
 fi
 
 # ── 2. Token-Saving Hooks ──
-h_test=0; [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-test-output.sh" ]] && h_test=1
-h_build=0; [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-build-output.sh" ]] && h_build=1
-h_lint=0; [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-lint-output.sh" ]] && h_lint=1
+h_test=0; h_build=0; h_lint=0
+if [[ -n "$PLUGIN_ROOT" ]]; then
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-test-output.sh" ]] && h_test=1
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-build-output.sh" ]] && h_build=1
+  [[ -f "$PLUGIN_ROOT/hooks/scripts/filter-lint-output.sh" ]] && h_lint=1
+fi
 h_count=$((h_test + h_build + h_lint))
 
 ht="x"; [[ $h_test -eq 1 ]] && ht="ok"
@@ -73,7 +94,7 @@ else
   c2_status="fail"; c2_detail="No filter hooks found"; FAIL=$((FAIL + 1))
 fi
 
-# ── 3. Fresh Context Files (informational — not counted) ──
+# ── 3. Fresh Context Files (informational - not counted) ──
 f_task=0; [[ -f "$PROJECT_ROOT/TASK.md" ]] && f_task=1
 f_prog=0; [[ -f "$PROJECT_ROOT/PROGRESS.md" ]] && f_prog=1
 
@@ -119,23 +140,14 @@ fi
 # ── 5. Project Structure ──
 c5_status="pass"; c5_detail="All files < 500 lines"
 
+# Single pass: filter the wc "total" summary line by FIELD ($2), then take the largest.
 largest_line=$(find "$PROJECT_ROOT" -type f \
   \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
      -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.tsx" \
      -o -name "*.jsx" -o -name "*.html" -o -name "*.css" -o -name "*.rb" -o -name "*.swift" \) \
   ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
   ! -path "*/dist/*" ! -path "*/build/*" ! -path "*/.next/*" \
-  -exec wc -l {} + 2>/dev/null | sort -rn | head -1 || echo "0 total")
-
-if echo "$largest_line" | grep -q "total$"; then
-  largest_line=$(find "$PROJECT_ROOT" -type f \
-    \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
-       -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" -o -name "*.tsx" \
-       -o -name "*.jsx" -o -name "*.html" -o -name "*.css" -o -name "*.rb" -o -name "*.swift" \) \
-    ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
-    ! -path "*/dist/*" ! -path "*/build/*" ! -path "*/.next/*" \
-    -exec wc -l {} + 2>/dev/null | sort -rn | head -2 | tail -1 || echo "0 unknown")
-fi
+  -exec wc -l {} + 2>/dev/null | awk '$2!="total"' | sort -rn | head -1 || echo "0 unknown")
 
 lc=$(echo "$largest_line" | awk '{print $1}' || echo 0)
 lf=$(echo "$largest_line" | awk '{print $2}' | xargs basename 2>/dev/null || echo "?")
@@ -147,7 +159,7 @@ if [[ -d "$PROJECT_ROOT" ]]; then
     \( -name "*.sh" -o -name "*.md" -o -name "*.json" -o -name "*.js" -o -name "*.ts" \
        -o -name "*.py" -o -name "*.go" -o -name "*.rs" -o -name "*.java" \) \
     ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/vendor/*" \
-    -exec wc -l {} + 2>/dev/null | awk '$1 > 1000 && !/total$/' | wc -l | tr -d ' ' || echo 0)
+    -exec wc -l {} + 2>/dev/null | awk '$2!="total" && $1>1000' | wc -l | tr -d ' ' || echo 0)
 fi
 
 if [[ ${big_count:-0} -gt 3 ]]; then
@@ -182,14 +194,15 @@ echo "  Score: ${PASS}/${TOTAL} passing -- ${ST}"
 divider
 echo "  Tokens saved: test ~80%  build ~90%  lint ~70%"
 
-# ── Live session cost (informational — from the active transcript) ──
+# ── Live session cost (informational - from the active transcript) ──
 # Reads the latest Claude Code transcript for this project and estimates the
 # most-recent turn's cost + cache-hit rate at current Opus 4.8 rates.
 if command -v jq >/dev/null 2>&1; then
   ABS_ROOT=$(cd "$PROJECT_ROOT" 2>/dev/null && pwd || echo "")
   SESSION_LINE="  Session: n/a (no active transcript)"
   if [[ -n "$ABS_ROOT" ]]; then
-    PROJ_DIR_NAME=$(echo "$ABS_ROOT" | sed 's#/#-#g')
+    # Claude Code encodes both / and . as - in the project dir name.
+    PROJ_DIR_NAME=$(echo "$ABS_ROOT" | sed 's#[/.]#-#g')
     TRANSCRIPT_DIR="$HOME/.claude/projects/$PROJ_DIR_NAME"
     TRANSCRIPT=""
     [[ -d "$TRANSCRIPT_DIR" ]] && TRANSCRIPT=$(ls -t "$TRANSCRIPT_DIR"/*.jsonl 2>/dev/null | head -1)

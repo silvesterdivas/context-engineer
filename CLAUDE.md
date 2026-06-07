@@ -13,7 +13,7 @@ Claude Code plugin packaging context engineering best practices: budget zones, d
 - `skills/`: budget-zones, degradation-signs, code-intelligence, model-switching, prompt-caching, thinking-control, auto-handoff
 - `commands/`: setup, diagnose, audit-mcp, fresh-context
 - `hooks/scripts/`: filter-test-output, filter-build-output, filter-lint-output, context-budget-warning
-- `scripts/scorecard.sh`: standalone health scorecard script (note: `/context-engineer:diagnose` currently embeds its own inline copy of this logic)
+- `scripts/scorecard.sh`: the health scorecard script that `/context-engineer:diagnose` locates and runs (single source of truth)
 
 ## Conventions
 - Keep skill files lean; progressive disclosure over walls of text
