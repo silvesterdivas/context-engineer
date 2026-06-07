@@ -1,7 +1,7 @@
 ---
 name: Model Switching
 description: This skill should be used when selecting a model for a task, when asking "which model should I use", "is this a Haiku or Sonnet task", "use haiku", or when delegating work to subagents and choosing a model tier.
-version: 1.2.0
+version: 2.1.0
 user-invocable: false
 ---
 

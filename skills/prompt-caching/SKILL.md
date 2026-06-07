@@ -1,7 +1,7 @@
 ---
 name: Prompt Caching
 description: This skill should be used when working to reduce token cost, when asked "how do I cut token costs", "why is my session expensive", "make this cache-friendly", or when ordering work within a long session so the prompt cache stays warm.
-version: 1.2.0
+version: 2.1.0
 user-invocable: false
 ---
 

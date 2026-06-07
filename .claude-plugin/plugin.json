@@ -1,7 +1,7 @@
 {
   "name": "context-engineer",
   "description": "Context engineering best practices for Claude Code. Budget zones, degradation detection, token-saving hooks, model switching, and more.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "Silvester Divas"
   },

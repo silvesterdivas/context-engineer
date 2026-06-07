@@ -456,6 +456,19 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 
 ## Changelog
 
+### v2.1.0
+
+- **New:** `/context-engineer:status` command - live budget zone, session cost, and a menu of every command, skill, and hook.
+- **New:** Model-aware session cost - the diagnose and scorecard cost line prices Opus, Sonnet, and Haiku sessions correctly instead of always at Opus rates.
+- **New:** Filter escape hatch - set `CONTEXT_ENGINEER_FILTER_OFF=1` to pass raw output through; every filtered summary advertises the switch.
+- **New:** Expanded filter coverage - gradle and xcodebuild (build); biome, ruff, oxlint (lint); bun test, deno test, phpunit, rspec (test).
+- **New:** Hook test harness (`tests/run.sh`, 31 assertions) and CI on Linux and macOS.
+- **New:** Auto-handoff reads the RED-zone sentinel JSON, recording real token and cache numbers in TASK.md.
+- **Fix:** Portability - replaced GNU-only `\s` with `[[:space:]]`, so the budget hook and lint filter no longer silently fail on stock BSD grep (macOS).
+- **Fix:** Validate `CONTEXT_ENGINEER_BUDGET` - an empty, non-numeric, or zero override falls back to the default instead of crashing the hook.
+- **Fix:** Corrected the filter threshold docs to 30 lines (overridable via `CONTEXT_ENGINEER_FILTER_MIN_LINES`).
+- **Refactor:** Scorecard logic deduplicated into one source of truth (`scripts/scorecard.sh`); `/context-engineer:diagnose` runs it instead of embedding a copy.
+
 ### v2.0.0
 
 - **Refactor:** The three output filters (test, build, lint) now share a single sourced scaffold (`hooks/scripts/filter-common.sh`) instead of duplicating it three times. Behavior is unchanged and verified byte-for-byte.

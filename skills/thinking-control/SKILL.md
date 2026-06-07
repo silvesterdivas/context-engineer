@@ -1,7 +1,7 @@
 ---
 name: Thinking Control
 description: This skill should be used when calibrating reasoning depth for a task, when deciding whether to think deeply or act immediately, when asked about "thinking depth", "over-thinking", or "under-thinking".
-version: 1.2.0
+version: 2.1.0
 user-invocable: false
 ---
 

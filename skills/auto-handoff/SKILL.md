@@ -1,7 +1,7 @@
 ---
 name: Auto-Pilot Handoff
 description: This skill should be used when the context budget hits RED zone, when the context-budget hook fires, or when it is time to save progress and create handoff files before starting a fresh conversation.
-version: 1.2.0
+version: 2.1.0
 user-invocable: false
 ---
 
