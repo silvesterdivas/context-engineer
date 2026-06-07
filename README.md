@@ -68,6 +68,83 @@ Then run a health check:
 
 That's it. The background skills and hooks activate automatically.
 
+## Common Scenarios
+
+Real situations and exactly what to do. Every command and signal below ships with the plugin.
+
+### Your session is burning tokens or getting expensive
+
+**Symptom:** Responses feel slow and costly, or you are watching spend climb on a long session.
+
+**What to run:**
+
+```
+/context-engineer:diagnose
+```
+
+The scorecard ends with a live session line, and the budget-warning hook already prints a zone note after each tool call. To actively cut cost, ask Claude "how do I cut token costs?" to trigger the prompt-caching skill.
+
+**What you see:**
+
+```
+Session: ~120K ctx tokens, 78% cached, est. $0.34/turn (Opus 4.8 rates)
+```
+
+A high cache-hit rate is good: cache reads cost about 0.1x. If it is low, that is your lever. Keep CLAUDE.md and early context stable, batch edits to the same file, and avoid re-reading files you opened earlier so the prompt cache stays warm.
+
+### A long session starts forgetting, looping, or contradicting itself
+
+**Symptom:** Claude drops earlier decisions, repeats a failed fix, or invents APIs. Context is filling up.
+
+**What to run:**
+
+```
+/context-engineer:fresh-context "the work still left to do"
+```
+
+**What you see:** The budget hook escalates through zones on its own as context fills:
+
+```
+[context-budget] YELLOW ZONE - Context: 65% [650000/1000000 tokens, 78% cached]. Be selective: prefer Grep over Read, summarize before processing large files.
+```
+
+In YELLOW and ORANGE the budget-zones and degradation-detection skills make Claude conserve automatically. At RED, fresh-context writes `TASK.md` + `PROGRESS.md` so you can open a clean session and continue with full awareness instead of fighting a degraded one.
+
+### Sessions feel heavy before you even start (MCP bloat)
+
+**Symptom:** Lots of MCP tools you never use load on every turn, eating context budget up front.
+
+**What to run:**
+
+```
+/context-engineer:audit-mcp
+```
+
+**What you see:** A per-server table with tool counts, estimated token overhead, and a keep/remove recommendation:
+
+```
+| Server   | Tools | Est. Tokens | Recommendation |
+|----------|-------|-------------|----------------|
+| comfyui  | ~110  | ~38,000     | Remove / scope |
+| stitch   | ~14   | ~4,900      | Remove         |
+```
+
+Move heavy, project-specific servers into that project's own `.mcp.json` instead of a workspace-wide one, then restart so the change takes effect (MCP config loads at startup).
+
+### You are not sure which model a task needs
+
+**Symptom:** Reaching for Opus on everything, or unsure whether a job could run cheaper and faster.
+
+**What to run:** Nothing to invoke; the model-switching skill guides this in the background. Ask "which model should I use for this?" to surface it directly.
+
+**What you see:** A task-to-model mapping you can act on:
+
+- **Haiku** for file search, grep, quick lookups, and simple edits
+- **Sonnet** for code review, refactors, and multi-file changes
+- **Opus** for architecture, complex debugging, and security review
+
+Opus is about 5x Haiku, so reserve it for judgment-heavy work. Delegate broad searches to the investigator (Haiku) subagent and reviews to the reviewer (Sonnet) subagent to keep your main context clean.
+
 ## How to Use: New Projects
 
 Starting fresh? Here's the complete workflow.
