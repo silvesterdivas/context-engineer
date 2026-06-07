@@ -18,7 +18,9 @@ run_filter() {
   local input command response line_count filtered
   input=$(cat)
   command=$(echo "$input" | jq -r '.tool_input.command // ""' 2>/dev/null) || exit 0
-  response=$(echo "$input" | jq -r '.tool_response // ""' 2>/dev/null) || exit 0
+  # tool_response is a string today, but tolerate an object form defensively
+  # (extract stdout/content/stderr) so the filters never scan raw JSON.
+  response=$(echo "$input" | jq -r 'if (.tool_response|type)=="object" then (.tool_response.stdout // .tool_response.content // .tool_response.stderr // (.tool_response|tojson)) else (.tool_response // "") end' 2>/dev/null) || exit 0
 
   # Only filter matching commands
   match_command "$command" || exit 0

@@ -51,6 +51,11 @@ assert_contains "build: labels output as Build"        "$out" '[token-saving] Bu
 out=$(make_input "gradle build" "$build_resp" | bash "$HOOKS/filter-build-output.sh")
 assert_contains "build: gradle matcher fires"          "$out" '[token-saving] Build'
 
+# defensive: tolerate tool_response delivered as an object instead of a string
+obj_input=$(jq -n --arg resp "$build_resp" '{tool_input:{command:"npm run build"}, tool_response:{stdout:$resp, stderr:"", interrupted:false}}')
+out=$(printf '%s' "$obj_input" | bash "$HOOKS/filter-build-output.sh")
+assert_contains "build: object tool_response (.stdout) is filtered" "$out" 'error TS2304'
+
 # --- filter-test-output.sh ---
 test_resp=$(printf 'FAIL src/a.test.ts\n  AssertionError: Expected 1 Received 2\n%s\nTests: 1 failed, 5 passed' "$(noise)")
 out=$(make_input "npx jest" "$test_resp" | bash "$HOOKS/filter-test-output.sh")
@@ -99,6 +104,26 @@ budget_input=$(jq -n --arg sid "$sid" --arg tp "$tr_file" '{session_id:$sid, tra
 out=$(printf '%s' "$budget_input" | bash "$HOOKS/context-budget-warning.sh")
 rm -f "$tr_file" "/tmp/context-budget-$sid"
 assert_empty "budget: under 15-turn floor stays silent" "$out"
+
+# an invalid CONTEXT_ENGINEER_BUDGET override must fall back, never crash the hook
+tr_file="$(mktemp)"
+i=0
+while [ "$i" -lt 16 ]; do
+  printf '{"type":"assistant","role":"assistant","message":{"usage":{"input_tokens":650000,"cache_read_input_tokens":0,"cache_creation_input_tokens":0}}}\n'
+  i=$((i + 1))
+done > "$tr_file"
+for badbudget in 0 abc ""; do
+  sid="cetest-badbudget-$$"
+  binput=$(jq -n --arg sid "$sid" --arg tp "$tr_file" '{session_id:$sid, transcript_path:$tp}')
+  out=$(printf '%s' "$binput" | CONTEXT_ENGINEER_BUDGET="$badbudget" bash "$HOOKS/context-budget-warning.sh" 2>&1)
+  rm -f "/tmp/context-budget-$sid" "/tmp/context-engineer-handoff-$sid"
+  case "$out" in
+    *"division by"*|*"unbound"*|*"syntax error"*) bad "budget: invalid BUDGET='$badbudget' is guarded" "errored: $out" ;;
+    *"YELLOW ZONE"*) ok "budget: invalid BUDGET='$badbudget' falls back to default" ;;
+    *) bad "budget: invalid BUDGET='$badbudget' falls back to default" "expected YELLOW, got: ${out:-<empty>}" ;;
+  esac
+done
+rm -f "$tr_file"
 
 # --- scripts/scorecard.sh (the script /context-engineer:diagnose locates and runs) ---
 sc_out=$(bash "$ROOT/scripts/scorecard.sh" "$ROOT" 2>/dev/null)

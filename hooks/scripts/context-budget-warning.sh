@@ -38,6 +38,10 @@ fi
 # Context window budget. Current Claude Code runs on Opus 4.8 / Sonnet 4.6 with
 # a 1M-token window (Haiku 4.5 is 200K). Override via CONTEXT_ENGINEER_BUDGET.
 BUDGET="${CONTEXT_ENGINEER_BUDGET:-1000000}"
+# Guard against an invalid override (empty, non-numeric, or zero) so the
+# divisions below can never crash the hook under set -euo pipefail.
+case "$BUDGET" in ''|*[!0-9]*) BUDGET=1000000 ;; esac
+[ "$BUDGET" -gt 0 ] || BUDGET=1000000
 CONTEXT_PCT=0
 SOURCE="unknown"
 CACHE_READ=0
