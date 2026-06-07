@@ -1,0 +1,32 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  hooks:
+    name: hook tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS runs BSD grep, so it catches portability regressions
+        # (e.g. GNU-only \s) that Linux would miss.
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            if [ "$RUNNER_OS" = "macOS" ]; then brew install jq; else sudo apt-get update && sudo apt-get install -y jq; fi
+          fi
+
+      - name: Syntax-check hook scripts
+        run: |
+          for f in hooks/scripts/*.sh scripts/*.sh tests/*.sh; do bash -n "$f"; done
+
+      - name: Run hook tests
+        run: bash tests/run.sh
