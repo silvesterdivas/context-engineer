@@ -202,7 +202,7 @@ echo "  Score: ${PASS}/${TOTAL} passing -- ${ST}"
 divider
 echo "  Tokens saved: test ~80%  build ~90%  lint ~70%"
 
-# ── Live session cost (informational — from the active transcript) ──
+# ── Live session cost (informational - from the active transcript) ──
 if command -v jq >/dev/null 2>&1; then
   ABS_ROOT=$(cd "$PROJECT_ROOT" 2>/dev/null && pwd || echo "")
   SESSION_LINE="  Session: n/a (no active transcript)"
@@ -242,7 +242,7 @@ fi
 
 ### Step 2: MCP Server Hygiene (manual check)
 
-The scorecard doesn't check MCP servers — that requires inspecting the system context. Check manually:
+The scorecard doesn't check MCP servers - that requires inspecting the system context. Check manually:
 - Count the number of MCP servers active in this session (visible in the system prompt)
 - Count the total MCP tools available
 - **PASS:** All servers are relevant, total tools < 20
@@ -251,7 +251,7 @@ The scorecard doesn't check MCP servers — that requires inspecting the system 
 
 Report MCP status as a line after the scorecard output:
 ```
-MCP Hygiene: X servers, Y tools — [assessment]
+MCP Hygiene: X servers, Y tools - [assessment]
 ```
 
 ### Step 3: Recommendations
@@ -263,4 +263,4 @@ If any checks show WARN or FAIL, list specific fix actions ordered by impact:
 - Git hygiene → Suggest committing or stashing
 - MCP bloat → Run `/context-engineer:audit-mcp`
 
-If all checks pass, just say the project is fully configured — no further action needed.
+If all checks pass, just say the project is fully configured - no further action needed.

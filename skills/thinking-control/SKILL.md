@@ -7,7 +7,7 @@ user-invocable: false
 
 # Thinking Depth Control
 
-Calibrate reasoning effort to the task at hand. Deep thinking is powerful but expensive — both in tokens and latency.
+Calibrate reasoning effort to the task at hand. Deep thinking is powerful but expensive - both in tokens and latency.
 
 ## Thinking Levels
 
@@ -70,4 +70,4 @@ Thinking consumes context window space:
 - **Moderate:** ~500-1000 tokens
 - **Deep:** ~2000-5000 tokens
 
-In YELLOW/ORANGE budget zones, bias toward lighter thinking. In RED zone, use minimal thinking — focus on saving state and wrapping up.
+In YELLOW/ORANGE budget zones, bias toward lighter thinking. In RED zone, use minimal thinking - focus on saving state and wrapping up.

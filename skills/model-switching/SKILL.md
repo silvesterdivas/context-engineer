@@ -13,34 +13,34 @@ Match task complexity to the right model. Opus is now affordable enough for most
 
 ### Haiku (Fast, Cheap)
 Best for tasks that are simple, repetitive, or involve searching:
-- **File search & grep** — Finding files, searching for patterns
-- **Simple code edits** — Renaming variables, fixing typos, adding imports
-- **Quick lookups** — Checking a function signature, reading a config value
-- **Boilerplate generation** — Test scaffolding, interface stubs, CRUD operations
-- **Status checks** — Git status, running simple commands
-- **Data extraction** — Pulling specific values from files or outputs
+- **File search & grep** - Finding files, searching for patterns
+- **Simple code edits** - Renaming variables, fixing typos, adding imports
+- **Quick lookups** - Checking a function signature, reading a config value
+- **Boilerplate generation** - Test scaffolding, interface stubs, CRUD operations
+- **Status checks** - Git status, running simple commands
+- **Data extraction** - Pulling specific values from files or outputs
 
 **Use via:** Investigator agent, or `model: "haiku"` in command frontmatter.
 
 ### Sonnet (Balanced)
 Best for tasks that require understanding and multi-step reasoning:
-- **Code review** — Reading and evaluating code quality, patterns, bugs
-- **Refactoring** — Restructuring code while preserving behavior
-- **Multi-file changes** — Coordinated edits across several files
-- **Bug investigation** — Following call chains, understanding data flow
-- **Feature implementation** — Standard features with clear requirements
-- **Test writing** — Understanding code to write meaningful tests
+- **Code review** - Reading and evaluating code quality, patterns, bugs
+- **Refactoring** - Restructuring code while preserving behavior
+- **Multi-file changes** - Coordinated edits across several files
+- **Bug investigation** - Following call chains, understanding data flow
+- **Feature implementation** - Standard features with clear requirements
+- **Test writing** - Understanding code to write meaningful tests
 
 **Use via:** Reviewer agent, or `model: "sonnet"` in command frontmatter.
 
 ### Opus (Powerful, Expensive)
 Reserve for tasks that require deep reasoning or creativity:
-- **Architecture decisions** — System design, technology choices, trade-offs
-- **Complex debugging** — Race conditions, memory leaks, subtle logic errors
-- **Security review** — Vulnerability analysis, threat modeling
-- **Performance optimization** — Algorithmic improvements, profiling analysis
-- **Novel problem solving** — Unusual requirements, creative solutions
-- **Cross-system integration** — Understanding how multiple systems interact
+- **Architecture decisions** - System design, technology choices, trade-offs
+- **Complex debugging** - Race conditions, memory leaks, subtle logic errors
+- **Security review** - Vulnerability analysis, threat modeling
+- **Performance optimization** - Algorithmic improvements, profiling analysis
+- **Novel problem solving** - Unusual requirements, creative solutions
+- **Cross-system integration** - Understanding how multiple systems interact
 
 **Use via:** Default model in most configurations, or explicit `model: "opus"`.
 
@@ -52,7 +52,7 @@ Reserve for tasks that require deep reasoning or creativity:
 | Sonnet 4.6 | $3 / $15  | ~3x | Medium  |
 | Opus 4.8   | $5 / $25  | ~5x | Slowest |
 
-Opus is ~5x Haiku today (it was 25x under older Opus pricing), so switching models down is a **weaker cost lever** than it used to be. The dominant way to cut token cost now is **prompt caching** — cache reads cost ~0.1x the input rate, so a cache-friendly workflow can save far more than any model downgrade. See the prompt-caching skill.
+Opus is ~5x Haiku today (it was 25x under older Opus pricing), so switching models down is a **weaker cost lever** than it used to be. The dominant way to cut token cost now is **prompt caching** - cache reads cost ~0.1x the input rate, so a cache-friendly workflow can save far more than any model downgrade. See the prompt-caching skill.
 
 ## Decision Heuristic
 

@@ -1,5 +1,5 @@
 ---
-description: Create TASK.md + PROGRESS.md for a fresh context handoff — continue complex tasks across sessions
+description: Create TASK.md + PROGRESS.md for a fresh context handoff - continue complex tasks across sessions
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*)
 argument-hint: "<task description>"
 ---
@@ -18,7 +18,7 @@ Create TASK.md and PROGRESS.md files so the current task can be continued in a n
    - Identify the goal, constraints, and tech stack from the conversation so far
    - Note any decisions already made, including *why* they were made and what alternatives were rejected
    - Document any approaches that were tried and failed, with root causes
-   - Check if `TASK.md` or `PROGRESS.md` already exist — if so, **append** a new session section rather than overwriting
+   - Check if `TASK.md` or `PROGRESS.md` already exist - if so, **append** a new session section rather than overwriting
 
 2. **Create TASK.md** in the project root with this structure:
 
@@ -57,14 +57,14 @@ Create TASK.md and PROGRESS.md files so the current task can be continued in a n
 # Progress: [Same title as TASK.md]
 
 ## Completed
-- [x] [Step done — be specific about what changed and where]
+- [x] [Step done - be specific about what changed and where]
 - [x] [Another completed step]
 
 ## Current State
-[What's working, what's broken, what's uncommitted. Be precise — the next session starts cold.]
+[What's working, what's broken, what's uncommitted. Be precise - the next session starts cold.]
 
 ## Next Steps
-1. [ ] [Immediate next action — most important first]
+1. [ ] [Immediate next action - most important first]
 2. [ ] [Following action]
 3. [ ] [Further actions in priority order]
 
@@ -77,7 +77,7 @@ Create TASK.md and PROGRESS.md files so the current task can be continued in a n
 ```
 
 4. **If TASK.md or PROGRESS.md already exist**, append a new session section instead of overwriting:
-   - For TASK.md: add new decisions, failed approaches, or constraint updates under existing headings, or add a `## Session Update — [date]` section
+   - For TASK.md: add new decisions, failed approaches, or constraint updates under existing headings, or add a `## Session Update - [date]` section
    - For PROGRESS.md: move newly completed items to the Completed list, update Current State, revise Next Steps, and add an entry to the Session Log
 
 5. **Report** the files created/updated and suggest the user start a new conversation with:

@@ -52,4 +52,4 @@ Use the most efficient tool for each code navigation task. Structured code intel
 1. **Pattern before content.** Find the right location with Grep/Glob, then Read only what is needed.
 2. **File type filters save tokens.** Always use `glob` or `type` parameters in Grep to narrow scope.
 3. **Line ranges are free wins.** `Read` with `offset` and `limit` is dramatically cheaper than full file reads.
-4. **Delegate broad searches.** For broad searches spanning many files, use the investigator agent — it's cheap (Haiku) and keeps the results out of the main context.
+4. **Delegate broad searches.** For broad searches spanning many files, use the investigator agent - it's cheap (Haiku) and keeps the results out of the main context.

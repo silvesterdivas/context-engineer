@@ -31,7 +31,7 @@ Apply these budget zones to manage context consumption throughout the conversati
 - **Behavior:** Conserve aggressively. Focus on completing the current task.
 - Only read specific line ranges, never full files
 - Use `Grep` exclusively for finding information
-- Give concise responses — skip explanations unless asked
+- Give concise responses - skip explanations unless asked
 - Do NOT start new exploratory tasks
 - Delegate any research to subagents
 - Consider creating fresh context files (TASK.md + PROGRESS.md)
@@ -56,6 +56,6 @@ There is no direct token counter, but use these heuristics:
 ## Key Principles
 
 1. **Front-load research.** Do exploration and reading early (GREEN zone) so context is available when needed later.
-2. **Summarize throughout.** After reading a file, mentally note the key parts — avoid re-reading it.
+2. **Summarize throughout.** After reading a file, mentally note the key parts - avoid re-reading it.
 3. **Delegate to save context.** The investigator agent (Haiku) is cheap and fast. Use it for broad searches.
 4. **Fresh context is not failure.** Creating TASK.md + PROGRESS.md and starting fresh is a feature, not a workaround.

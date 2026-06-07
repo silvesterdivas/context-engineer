@@ -7,7 +7,7 @@ user-invocable: false
 
 # Auto-Pilot Handoff
 
-This skill activates automatically when the context budget warning hook announces RED zone via a `[context-budget] RED ZONE` systemMessage. Invocation is not required — this skill governs behavior after the hook fires.
+This skill activates automatically when the context budget warning hook announces RED zone via a `[context-budget] RED ZONE` systemMessage. Invocation is not required - this skill governs behavior after the hook fires.
 
 ## When Handoff is Triggered
 
@@ -58,14 +58,14 @@ Create or append to `PROGRESS.md` in the project root using this template:
 # Progress: [Same title as TASK.md]
 
 ## Completed
-- [x] [Step done — be specific about what changed and where]
+- [x] [Step done - be specific about what changed and where]
 - [x] [Another completed step]
 
 ## Current State
-[What's working, what's broken, what's uncommitted. Be precise — the next session starts cold.]
+[What's working, what's broken, what's uncommitted. Be precise - the next session starts cold.]
 
 ## Next Steps
-1. [ ] [Immediate next action — most important first]
+1. [ ] [Immediate next action - most important first]
 2. [ ] [Following action]
 3. [ ] [Further actions in priority order]
 
@@ -82,14 +82,14 @@ Create or append to `PROGRESS.md` in the project root using this template:
 If `TASK.md` or `PROGRESS.md` already exist in the project root:
 
 - **Do not overwrite.** Append a new session section.
-- For TASK.md: Add any new decisions, failed approaches, or constraint updates under the existing headings, or add a `## Session Update — [date]` section.
+- For TASK.md: Add any new decisions, failed approaches, or constraint updates under the existing headings, or add a `## Session Update - [date]` section.
 - For PROGRESS.md: Move newly completed items to the Completed list, update Current State, revise Next Steps, and add an entry to the Session Log.
 
 ## Notify the User
 
 After generating the files, inform the user clearly:
 
-> **Context budget exhausted — handoff files saved.**
+> **Context budget exhausted - handoff files saved.**
 >
 > I've created/updated `TASK.md` and `PROGRESS.md` with the current state of this task.
 >
@@ -102,4 +102,4 @@ If the user explicitly says to continue working despite the RED zone warning:
 
 - Comply with their request.
 - Warn once that context degradation may cause hallucinations, repeated work, or forgotten context.
-- Do not warn again after that — respect their decision.
+- Do not warn again after that - respect their decision.

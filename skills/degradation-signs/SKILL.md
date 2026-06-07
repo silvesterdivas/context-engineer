@@ -73,5 +73,5 @@ When you suspect degradation, run this mental checklist:
 
 - Use budget zones proactively (don't wait for degradation)
 - Delegate to subagents for any research that isn't immediately needed
-- Commit working changes frequently — smaller commits = safer state
+- Commit working changes frequently - smaller commits = safer state
 - Create fresh context files preemptively for complex tasks

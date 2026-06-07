@@ -14,7 +14,7 @@ Add context engineering best practices to this project's CLAUDE.md file.
 
 2. Read the existing CLAUDE.md content (if any).
 
-3. Append the following **Context Engineering Rules** section if it doesn't already exist. If a section with this heading exists, skip — do not duplicate.
+3. Append the following **Context Engineering Rules** section if it doesn't already exist. If a section with this heading exists, skip - do not duplicate.
 
 ```markdown
 ## Context Engineering Rules
@@ -41,16 +41,16 @@ When context gets heavy or a task is complex:
 - **Haiku:** File search, grep, quick lookups, simple edits
 - **Sonnet:** Code review, refactoring, multi-file changes
 - **Opus:** Architecture decisions, complex debugging, security review
-- Opus is ~5x Haiku at current pricing (not 25x) — pick Haiku/Sonnet for speed and context conservation, not just cost.
+- Opus is ~5x Haiku at current pricing (not 25x) - pick Haiku/Sonnet for speed and context conservation, not just cost.
 
 ### Prompt Caching (biggest cost lever)
 - Caching is a prefix match: changing early context (CLAUDE.md, files read at the start) re-reads everything after it at full price.
 - Keep CLAUDE.md and early context stable; batch edits to the same file; avoid re-reading files you touched early.
-- Cache reads cost ~0.1x — a warm session is far cheaper than any model downgrade.
+- Cache reads cost ~0.1x - a warm session is far cheaper than any model downgrade.
 
 ### Output Filtering
 Token-saving hooks are active for test, build, and lint output.
-Only failures, errors, and summaries are retained — raw output is filtered.
+Only failures, errors, and summaries are retained - raw output is filtered.
 ```
 
 4. Report what was added or that the file was already configured.

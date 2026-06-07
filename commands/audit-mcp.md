@@ -1,5 +1,5 @@
 ---
-description: Audit MCP servers — list active servers, flag unused ones wasting context tokens
+description: Audit MCP servers - list active servers, flag unused ones wasting context tokens
 allowed-tools: Read, Bash, Glob, Grep
 ---
 
