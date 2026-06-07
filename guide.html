@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guide — context-engineer</title>
+<title>Guide - context-engineer</title>
 <meta name="description" content="Setup guide for context-engineer: new projects, existing projects, budget zones, fresh context, model switching, daily workflow, and troubleshooting.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
     </div>
   </header>
 
-  <!-- 06 — New Projects -->
+  <!-- 06 - New Projects -->
   <section class="section" id="new-projects">
     <div class="section__label">
       <span class="section__label-num">06</span> New Projects
@@ -63,7 +63,7 @@
         <div class="step__num">2</div>
         <div class="step__content">
           <div class="step__title">Run setup</div>
-          <div class="step__desc">Creates a CLAUDE.md with budget zones, tool efficiency rules, model switching, and output filtering &mdash; all configured automatically.</div>
+          <div class="step__desc">Creates a CLAUDE.md with budget zones, tool efficiency rules, model switching, and output filtering - all configured automatically.</div>
           <div class="code-block">
             <div class="code-block__header"><span>Claude Code</span></div>
             <div class="code-block__body"><code><span class="command">/context-engineer:setup</span></code></div>
@@ -85,7 +85,7 @@
         <div class="step__num">4</div>
         <div class="step__content">
           <div class="step__title">Start building</div>
-          <div class="step__desc">Work normally. Tests, builds, and lints are filtered automatically. Budget zones adapt as context fills. You're in GREEN zone &mdash; explore freely, read full files, make architecture decisions with Opus.</div>
+          <div class="step__desc">Work normally. Tests, builds, and lints are filtered automatically. Budget zones adapt as context fills. You're in GREEN zone - explore freely, read full files, make architecture decisions with Opus.</div>
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@
     </div>
   </section>
 
-  <!-- 07 — Existing Projects -->
+  <!-- 07 - Existing Projects -->
   <section class="section" id="existing-projects">
     <div class="section__label">
       <span class="section__label-num">07</span> Existing Projects
@@ -148,7 +148,7 @@
       <div class="step">
         <div class="step__num">4</div>
         <div class="step__content">
-          <div class="step__title">Keep working &mdash; sessions just got longer</div>
+          <div class="step__title">Keep working - sessions just got longer</div>
           <div class="step__desc">Your workflow doesn't change. Sessions that used to die at 45 minutes now last hours. Hooks silently save thousands of tokens per test/build/lint cycle.</div>
         </div>
       </div>
@@ -164,35 +164,35 @@
     </div>
   </section>
 
-  <!-- 08 — Budget Zones Deep Dive -->
+  <!-- 08 - Budget Zones Deep Dive -->
   <section class="section" id="budget-zones">
     <div class="section__label">
       <span class="section__label-num">08</span> Budget Zones
     </div>
     <h2 class="section__title">Adaptive behavior as context fills.</h2>
-    <p class="section__text">Four zones determine how Claude works. No configuration &mdash; it adapts automatically based on how much of the context window is consumed.</p>
+    <p class="section__text">Four zones determine how Claude works. No configuration - it adapts automatically based on how much of the context window is consumed.</p>
 
     <div class="problem-grid" style="margin-top: 24px;">
       <div class="problem-card" style="border-left: 4px solid #22c55e;">
-        <div class="problem-card__title" style="color: #15803d;">GREEN &mdash; Below 60%</div>
+        <div class="problem-card__title" style="color: #15803d;">GREEN - Below 60%</div>
         <div class="problem-card__desc">Full exploration mode. Read entire files freely. Use Opus for architecture decisions. No constraints on tool usage. This is where you do your best creative work.</div>
       </div>
       <div class="problem-card" style="border-left: 4px solid #eab308;">
-        <div class="problem-card__title" style="color: #a16207;">YELLOW &mdash; 60-75%</div>
+        <div class="problem-card__title" style="color: #a16207;">YELLOW - 60-75%</div>
         <div class="problem-card__desc">Getting warm. Prefers Grep over Read. Summarizes content before processing. Batches related operations. Delegates simple tasks to Haiku subagents.</div>
       </div>
       <div class="problem-card" style="border-left: 4px solid #f97316;">
-        <div class="problem-card__title" style="color: #c2670a;">ORANGE &mdash; 75-85%</div>
+        <div class="problem-card__title" style="color: #c2670a;">ORANGE - 75-85%</div>
         <div class="problem-card__desc">Conservation mode. Line ranges only, no full file reads. Targeted Grep searches. Delegates everything possible to subagents. Focus on your primary task.</div>
       </div>
       <div class="problem-card" style="border-left: 4px solid #dc2626;">
-        <div class="problem-card__title" style="color: #dc2626;">RED &mdash; Above 85%</div>
+        <div class="problem-card__title" style="color: #dc2626;">RED - Above 85%</div>
         <div class="problem-card__desc">Time to hand off. Finishes the immediate task. Creates TASK.md + PROGRESS.md automatically. Suggests starting a new conversation with full context preserved.</div>
       </div>
     </div>
   </section>
 
-  <!-- 09 — Fresh Context Pattern -->
+  <!-- 09 - Fresh Context Pattern -->
   <section class="section" id="fresh-context">
     <div class="section__label">
       <span class="section__label-num">09</span> Fresh Context Pattern
@@ -217,8 +217,8 @@
         <div class="step__content">
           <div class="step__title">Two files capture everything</div>
           <div class="step__desc">
-            <strong>TASK.md</strong> &mdash; Goal, constraints, key files, decisions already made, current context.<br>
-            <strong>PROGRESS.md</strong> &mdash; Steps completed, current state, next steps, notes and blockers.
+            <strong>TASK.md</strong> - Goal, constraints, key files, decisions already made, current context.<br>
+            <strong>PROGRESS.md</strong> - Steps completed, current state, next steps, notes and blockers.
           </div>
         </div>
       </div>
@@ -237,7 +237,7 @@
     </div>
   </section>
 
-  <!-- 10 — Model Switching & Degradation -->
+  <!-- 10 - Model Switching & Degradation -->
   <section class="section" id="model-switching">
     <div class="section__label">
       <span class="section__label-num">10</span> Smart Routing
@@ -270,7 +270,7 @@
         </tr>
       </tbody>
     </table>
-    <p style="margin-top: 0.75rem; color: #6b7280; font-size: 0.9rem;">Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be — prompt caching (cache reads ~0.1x) saves far more.</p>
+    <p style="margin-top: 0.75rem; color: #6b7280; font-size: 0.9rem;">Opus is now ~5x Haiku (it was 25x under older pricing), so model choice is a smaller cost lever than it used to be - prompt caching (cache reads ~0.1x) saves far more.</p>
 
     <div style="margin-top: 32px;">
       <h3 class="section__title" style="font-size: 1.4rem;">Degradation detection.</h3>
@@ -306,7 +306,7 @@
     </table>
   </section>
 
-  <!-- 11 — Daily Workflow -->
+  <!-- 11 - Daily Workflow -->
   <section class="section" id="workflow">
     <div class="section__label">
       <span class="section__label-num">11</span> Daily Workflow
@@ -341,7 +341,7 @@
     </div>
   </section>
 
-  <!-- 12 — Troubleshooting -->
+  <!-- 12 - Troubleshooting -->
   <section class="section" id="troubleshooting">
     <div class="section__label">
       <span class="section__label-num">12</span> Troubleshooting
@@ -381,7 +381,7 @@
   <footer class="footer">
     <div class="footer__left">
       <span>context-engineer v1.2.0</span>
-      <span>&mdash;</span>
+      <span>-</span>
       <span>Built by Silvester Divas</span>
     </div>
     <div class="footer__right">

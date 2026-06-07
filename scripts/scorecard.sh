@@ -55,7 +55,7 @@ for dir in "$PROJECT_ROOT" "$PROJECT_ROOT/.."; do
 done
 
 c1_status="fail"
-c1_detail="No CLAUDE.md found -- run /context-engineer:setup"
+c1_detail="No CLAUDE.md found - run /context-engineer:setup"
 
 if [[ -n "$CLAUDE_MD" ]]; then
   hb=$(grep -c "Budget Zones" "$CLAUDE_MD" 2>/dev/null || true)
@@ -128,9 +128,9 @@ if git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree &>/dev/null; then
     if [[ $total_changes -lt 500 ]]; then
       c4_status="pass"; c4_detail="${total_changes} lines changed, ${untracked} untracked"; PASS=$((PASS + 1))
     elif [[ $total_changes -lt 2000 ]]; then
-      c4_status="warn"; c4_detail="${total_changes} lines -- consider committing"; WARN=$((WARN + 1))
+      c4_status="warn"; c4_detail="${total_changes} lines - consider committing"; WARN=$((WARN + 1))
     else
-      c4_status="fail"; c4_detail="${total_changes} lines uncommitted -- context risk"; FAIL=$((FAIL + 1))
+      c4_status="fail"; c4_detail="${total_changes} lines uncommitted - context risk"; FAIL=$((FAIL + 1))
     fi
   fi
 else
@@ -176,7 +176,7 @@ fi
 
 echo ""
 divider
-echo "  context-engineer v${VER} -- Health Scorecard"
+echo "  context-engineer v${VER} - Health Scorecard"
 divider
 check_row "$c1_status" "CLAUDE.md" "$c1_detail"
 check_row "$c2_status" "Token-Saving Hooks" "$c2_detail"
@@ -190,7 +190,7 @@ else ST="Your context is engineered."
 fi
 
 divider
-echo "  Score: ${PASS}/${TOTAL} passing -- ${ST}"
+echo "  Score: ${PASS}/${TOTAL} passing - ${ST}"
 divider
 echo "  Tokens saved: test ~80%  build ~90%  lint ~70%"
 
