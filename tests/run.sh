@@ -139,6 +139,25 @@ for badbudget in 0 abc ""; do
 done
 rm -f "$tr_file"
 
+# budget: RED zone writes the sentinel JSON the auto-handoff skill reads
+tr_file="$(mktemp)"
+i=0
+while [ "$i" -lt 16 ]; do
+  printf '{"type":"assistant","role":"assistant","message":{"usage":{"input_tokens":900000,"cache_read_input_tokens":820000,"cache_creation_input_tokens":0}}}\n'
+  i=$((i + 1))
+done > "$tr_file"
+sid="cetest-red-$$"
+binput=$(jq -n --arg sid "$sid" --arg tp "$tr_file" '{session_id:$sid, transcript_path:$tp}')
+out=$(printf '%s' "$binput" | bash "$HOOKS/context-budget-warning.sh")
+sentinel="/tmp/context-engineer-handoff-$sid"
+assert_contains "budget: RED zone fires" "$out" "RED ZONE"
+if [ -f "$sentinel" ] && jq -e 'has("context_pct") and has("timestamp")' "$sentinel" >/dev/null 2>&1; then
+  ok "budget: RED writes a sentinel with context_pct + timestamp"
+else
+  bad "budget: RED writes a sentinel with context_pct + timestamp" "missing/malformed: $sentinel"
+fi
+rm -f "$tr_file" "$sentinel" "/tmp/context-budget-$sid"
+
 # --- scripts/scorecard.sh (the script /context-engineer:diagnose locates and runs) ---
 sc_out=$(bash "$ROOT/scripts/scorecard.sh" "$ROOT" 2>/dev/null)
 assert_contains "scorecard: renders the health scorecard" "$sc_out" "Health Scorecard"

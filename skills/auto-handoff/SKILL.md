@@ -17,6 +17,23 @@ After completing any atomic unit of work (a file edit, a commit, a test run, a s
 2. **Do not read new files** or begin exploratory searches.
 3. **Proceed directly** to generating the handoff files below.
 
+## Read the Budget Sentinel
+
+When the hook fires RED it writes a sentinel JSON capturing the exact budget state at that moment. Read it first so the handoff records real numbers instead of guesses:
+
+```bash
+SENTINEL=$(ls -t /tmp/context-engineer-handoff-* 2>/dev/null | head -1)
+[ -n "$SENTINEL" ] && cat "$SENTINEL"
+```
+
+The sentinel holds `context_pct`, `total_input_tokens`, `cache_read_input_tokens`, `cache_pct`, `source`, `budget`, and `timestamp`. Fold these into the TASK.md **Context** block, for example: `Hit RED at 87% (870K/1M tokens, 91% cached) on 2026-06-07`. If no sentinel exists (the skill was invoked manually rather than by the hook), skip this step.
+
+After the handoff files are written, remove the sentinel so it does not leak into a later session:
+
+```bash
+rm -f "$SENTINEL"
+```
+
 ## Generate Enhanced TASK.md
 
 Create or append to `TASK.md` in the project root using this template:
