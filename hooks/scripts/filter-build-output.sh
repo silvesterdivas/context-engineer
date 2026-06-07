@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/filter-common.sh"
 
 match_command() {
   case "$1" in
-    *"npm run build"*|*"npx expo"*|*"npx tsc"*|*"webpack"*|*"vite build"*|*"cargo build"*|*"go build"*|*"npm run compile"*) return 0 ;;
+    *"npm run build"*|*"npx expo"*|*"npx tsc"*|*"webpack"*|*"vite build"*|*"cargo build"*|*"go build"*|*"npm run compile"*|*"gradle"*|*"xcodebuild"*) return 0 ;;
     *) return 1 ;;
   esac
 }

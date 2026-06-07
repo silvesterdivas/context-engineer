@@ -200,7 +200,7 @@ That's it. Here's what happens behind the scenes:
 - Before: Claude processes 150 lines of lint output
 - After: Claude sees only the problems - **~70% token savings**
 
-Hooks only activate when output exceeds 40 lines. Short outputs pass through unchanged.
+Hooks only activate when output exceeds 30 lines. Short outputs pass through unchanged.
 
 ### Tips for new projects
 
@@ -365,7 +365,7 @@ When degradation is detected, the skill flags it in real time so you can act bef
 ## Troubleshooting
 
 ### Hooks don't seem to be filtering output
-Hooks only activate on output exceeding 40 lines. Run a test suite with enough tests to generate verbose output.
+Hooks only activate on output exceeding 30 lines. Run a test suite with enough tests to generate verbose output.
 
 ### Setup added duplicate content to CLAUDE.md
 Run `/context-engineer:diagnose` to check. The setup command checks for existing rules before adding. If duplication occurred, remove the duplicate section manually.
@@ -376,8 +376,8 @@ Expected for large codebases. Budget zones and model switching extend your sessi
 ### Customizing which commands trigger hooks
 Edit the hook scripts at `hooks/scripts/`. Each script has a pattern matcher at the top.
 
-### Changing the 40-line threshold
-Edit the `LINE_COUNT` check in any hook script under `hooks/scripts/`.
+### Changing the 30-line threshold
+Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/scripts/filter-common.sh`.
 
 ---
 
@@ -435,15 +435,15 @@ Three PostToolUse hooks automatically filter verbose Bash output:
 | `filter-build-output.sh` | tsc, gradle, xcodebuild, cargo build, etc. | Error/warning lines | ~90% |
 | `filter-lint-output.sh` | eslint, pylint, clippy, biome, etc. | Problem lines only | ~70% |
 
-Hooks only activate on output > 40 lines. Short output passes through unfiltered.
+Hooks only activate on output > 30 lines. Short output passes through unfiltered.
 
 ## Customization
 
 ### Disable a specific hook
 Remove the corresponding entry from `hooks/hooks.json`.
 
-### Adjust the 40-line threshold
-Edit the `LINE_COUNT` check in any script under `hooks/scripts/`.
+### Adjust the 30-line threshold
+Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/scripts/filter-common.sh`.
 
 ### Add project-specific budget zone rules
 Run `/context-engineer:setup` then edit the generated section in your CLAUDE.md.

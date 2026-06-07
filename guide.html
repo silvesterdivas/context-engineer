@@ -355,7 +355,7 @@
       <tbody>
         <tr>
           <td>Hooks don't seem to be filtering</td>
-          <td>Hooks only activate on output &gt; 40 lines. Run a test suite with enough tests to generate verbose output.</td>
+          <td>Hooks only activate on output &gt; 30 lines. Run a test suite with enough tests to generate verbose output.</td>
         </tr>
         <tr>
           <td>Setup added duplicate content</td>
@@ -370,8 +370,8 @@
           <td>Edit scripts at hooks/scripts/. Each has a pattern matcher at the top.</td>
         </tr>
         <tr>
-          <td>Want to change the 40-line threshold</td>
-          <td>Edit the LINE_COUNT check in any hook script under hooks/scripts/.</td>
+          <td>Want to change the 30-line threshold</td>
+          <td>Set CONTEXT_ENGINEER_FILTER_MIN_LINES, or edit FILTER_MIN_LINES in hooks/scripts/filter-common.sh.</td>
         </tr>
       </tbody>
     </table>

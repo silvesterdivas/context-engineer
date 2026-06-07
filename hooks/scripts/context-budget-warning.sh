@@ -69,7 +69,7 @@ else
   FILE_SIZE_PCT=$((ESTIMATED_TOKENS * 100 / BUDGET))
   [ "$FILE_SIZE_PCT" -gt 100 ] && FILE_SIZE_PCT=100
 
-  MSG_COUNT=$(grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT=0
+  MSG_COUNT=$(grep -cE '"role"[[:space:]]*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT=0
   MSG_COUNT_PCT=$((MSG_COUNT * 100 / 250))
   [ "$MSG_COUNT_PCT" -gt 100 ] && MSG_COUNT_PCT=100
 
@@ -83,7 +83,7 @@ fi
 
 # --- 15-turn minimum floor ---
 # Prevent false positives on early large file reads
-MSG_COUNT_CHECK=$(grep -c '"role"\s*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT_CHECK=0
+MSG_COUNT_CHECK=$(grep -cE '"role"[[:space:]]*:' "$TRANSCRIPT_PATH" 2>/dev/null) || MSG_COUNT_CHECK=0
 if [ "$MSG_COUNT_CHECK" -lt 15 ]; then
   CONTEXT_PCT=0
 fi

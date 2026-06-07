@@ -123,7 +123,7 @@ npx eslint src/
 Before: Claude processes 150 lines of lint output.
 After: Claude sees only the problems. **~70% token savings.**
 
-All of this happens automatically. The hooks only activate when output exceeds 40 lines, so short outputs pass through unchanged.
+All of this happens automatically. The hooks only activate when output exceeds 30 lines, so short outputs pass through unchanged.
 
 ### New Project Workflow Tips
 
@@ -211,7 +211,7 @@ Everything is now active. Your existing workflow doesn't change — you just get
 | **Build Output Filter** | `npm run build`, `tsc`, `webpack`, `vite`, `cargo build`, `gradle`, `xcodebuild` | Keeps errors + warnings only | ~90% |
 | **Lint Output Filter** | `eslint`, `prettier`, `stylelint`, `pylint`, `flake8`, `clippy` | Keeps problem lines only | ~70% |
 
-Hooks only activate when output exceeds 40 lines. Short outputs pass through unchanged.
+Hooks only activate when output exceeds 30 lines. Short outputs pass through unchanged.
 
 ### Skills (Background — Activate Contextually)
 
@@ -389,7 +389,7 @@ When degradation is detected, the skill flags it in real time. You'll see a clea
 
 ### "Hooks don't seem to be filtering output"
 
-Hooks only activate on output exceeding 40 lines. Run a test suite with enough tests to generate verbose output and check if the filtered version appears.
+Hooks only activate on output exceeding 30 lines. Run a test suite with enough tests to generate verbose output and check if the filtered version appears.
 
 ### "I already have a CLAUDE.md and setup added duplicate content"
 
@@ -408,9 +408,9 @@ Edit the hook scripts directly at:
 
 Each script has a pattern matcher at the top that determines which commands trigger it. Add or remove patterns as needed.
 
-### "I want to change the 40-line threshold"
+### "I want to change the 30-line threshold"
 
-Edit the `LINE_COUNT` check in any hook script under `hooks/scripts/`. Lower the number for more aggressive filtering, raise it for less.
+Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/scripts/filter-common.sh`. Lower the number for more aggressive filtering, raise it for less.
 
 ---
 
