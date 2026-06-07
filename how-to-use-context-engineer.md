@@ -1,6 +1,6 @@
 # How to Use Context Engineer: The Complete Guide
 
-Whether you're starting a brand-new project or adding context engineering to a codebase you've been working on for months, this guide walks you through everything — from installation to daily workflow.
+Whether you're starting a brand-new project or adding context engineering to a codebase you've been working on for months, this guide walks you through everything - from installation to daily workflow.
 
 ---
 
@@ -17,7 +17,7 @@ One install. Zero configuration. It just works.
 Before you start, make sure you have:
 
 - **Claude Code** installed and working
-- **jq** (JSON processor) — pre-installed on most dev machines
+- **jq** (JSON processor) - pre-installed on most dev machines
   - Mac: `brew install jq`
   - Linux: `apt install jq`
 
@@ -27,7 +27,7 @@ That's it.
 
 ## Installation (Same for New and Existing Projects)
 
-Installation is global — you do this once, and it works across all your projects.
+Installation is global - you do this once, and it works across all your projects.
 
 **Step 1: Add the marketplace**
 
@@ -43,7 +43,7 @@ claude plugin install context-engineer@context-engineer-marketplace
 
 Done. The plugin is now installed at `~/.claude/plugins/marketplaces/context-engineer-marketplace/`.
 
-The three token-saving hooks (test, build, lint output filters) are already active. Every time Claude Code runs a test suite, build command, or linter, the output gets filtered automatically — no setup needed.
+The three token-saving hooks (test, build, lint output filters) are already active. Every time Claude Code runs a test suite, build command, or linter, the output gets filtered automatically - no setup needed.
 
 ---
 
@@ -69,11 +69,11 @@ Open Claude Code in your project directory and run:
 
 This creates a `CLAUDE.md` file in your project root with the full Context Engineering Rules section:
 
-- **Budget Zones** — GREEN/YELLOW/ORANGE/RED behavior thresholds
-- **Fresh Context Pattern** — instructions for creating handoff files
-- **Tool Efficiency** — when to use Grep vs Read vs Glob
-- **Model Switching** — which model to use for which task type
-- **Output Filtering** — confirmation that token-saving hooks are active
+- **Budget Zones** - GREEN/YELLOW/ORANGE/RED behavior thresholds
+- **Fresh Context Pattern** - instructions for creating handoff files
+- **Tool Efficiency** - when to use Grep vs Read vs Glob
+- **Model Switching** - which model to use for which task type
+- **Output Filtering** - confirmation that token-saving hooks are active
 
 Your `CLAUDE.md` is the brain of your project's AI configuration. Claude Code reads it at the start of every session.
 
@@ -127,7 +127,7 @@ All of this happens automatically. The hooks only activate when output exceeds 3
 
 ### New Project Workflow Tips
 
-1. **Let Claude Code explore freely at first.** In a new project, you're in GREEN zone (context usage < 60%). Take advantage of this — read full files, explore the codebase, make architecture decisions.
+1. **Let Claude Code explore freely at first.** In a new project, you're in GREEN zone (context usage < 60%). Take advantage of this - read full files, explore the codebase, make architecture decisions.
 
 2. **Use Opus for early decisions.** The model switching skill will guide Claude to use Opus for architecture decisions at the start of a project. This is where it matters most.
 
@@ -155,7 +155,7 @@ Open Claude Code and run:
 
 **If you don't have a CLAUDE.md:** One gets created with the complete Context Engineering Rules section.
 
-**If you already have a CLAUDE.md:** The setup command reads your existing file and appends the Context Engineering Rules section. Your existing content — project-specific instructions, coding standards, architecture notes — stays untouched.
+**If you already have a CLAUDE.md:** The setup command reads your existing file and appends the Context Engineering Rules section. Your existing content - project-specific instructions, coding standards, architecture notes - stays untouched.
 
 **If you already have the rules section:** Setup detects it and skips. No duplication.
 
@@ -181,19 +181,19 @@ You'll get a table showing each server's name, tool count, estimated token overh
 ```
 
 For existing projects, pay special attention to:
-- **Token-saving hooks** — make sure they're installed and matching your build tools
-- **CLAUDE.md configuration** — verify the rules section integrated cleanly with your existing content
-- **Project structure** — the scorecard may flag opportunities to reorganize for better AI navigation
+- **Token-saving hooks** - make sure they're installed and matching your build tools
+- **CLAUDE.md configuration** - verify the rules section integrated cleanly with your existing content
+- **Project structure** - the scorecard may flag opportunities to reorganize for better AI navigation
 
 ### Step 5: Start Working
 
-Everything is now active. Your existing workflow doesn't change — you just get dramatically better sessions.
+Everything is now active. Your existing workflow doesn't change - you just get dramatically better sessions.
 
 ### Existing Project Workflow Tips
 
 1. **Your first session will feel different.** If you're used to sessions dying at 45 minutes, you'll notice they last much longer now. The hooks are silently saving thousands of tokens per test/build/lint cycle.
 
-2. **Watch the budget zones.** On large codebases, you'll hit YELLOW and ORANGE faster because there's more code to read. The budget zone skill will automatically guide Claude to be more selective — using Grep instead of reading full files, summarizing before diving in.
+2. **Watch the budget zones.** On large codebases, you'll hit YELLOW and ORANGE faster because there's more code to read. The budget zone skill will automatically guide Claude to be more selective - using Grep instead of reading full files, summarizing before diving in.
 
 3. **Use fresh context for big refactors.** If you're refactoring a major system, run `/context-engineer:fresh-context "refactoring the payment processing module"` before you start. When the context gets heavy, you'll have TASK.md and PROGRESS.md ready for a clean handoff to a new session.
 
@@ -203,7 +203,7 @@ Everything is now active. Your existing workflow doesn't change — you just get
 
 ## The 9 Techniques: What Each One Does
 
-### Hooks (Automatic — Always Running)
+### Hooks (Automatic - Always Running)
 
 | Hook | Triggers On | What It Filters | Savings |
 |------|------------|----------------|---------|
@@ -213,7 +213,7 @@ Everything is now active. Your existing workflow doesn't change — you just get
 
 Hooks only activate when output exceeds 30 lines. Short outputs pass through unchanged.
 
-### Skills (Background — Activate Contextually)
+### Skills (Background - Activate Contextually)
 
 | Skill | What It Does | When It Activates |
 |-------|-------------|-------------------|
@@ -224,7 +224,7 @@ Hooks only activate when output exceeds 30 lines. Short outputs pass through unc
 | **Prompt Caching** | Keeps the prompt cache warm (cache reads ~0.1x) for big cost savings | Throughout a long session |
 | **Thinking Control** | Calibrates reasoning depth based on task complexity | Every task |
 
-### Commands (Manual — You Invoke When Needed)
+### Commands (Manual - You Invoke When Needed)
 
 | Command | What It Does | When to Use |
 |---------|-------------|-------------|
@@ -300,14 +300,14 @@ Run the command with a description of your task:
 
 This creates two files in your project root:
 
-**TASK.md** — The goal:
+**TASK.md** - The goal:
 - What you're building
 - Constraints and requirements
 - Key files involved
 - Decisions already made
 - Current context and state
 
-**PROGRESS.md** — Where you are:
+**PROGRESS.md** - Where you are:
 - Steps completed
 - Current state of the work
 - Next steps to take
@@ -335,7 +335,7 @@ Context engineer guides Claude to use subagents efficiently:
 | Code review, refactoring, multi-file changes | **Sonnet 4.6** | Balanced capability and cost ($3/$15 per 1M). ~3x cost. |
 | Architecture decisions, complex debugging, security review | **Opus 4.8** | Maximum reasoning power ($5/$25 per 1M). ~5x cost. |
 
-You don't configure this manually. The model switching skill guides Claude's decisions about when to spawn subagents and which model to use for each task type. With Opus now ~5x Haiku (not 25x), the bigger cost lever is prompt caching — cache reads cost ~0.1x, so keeping early context stable saves more than any model downgrade.
+You don't configure this manually. The model switching skill guides Claude's decisions about when to spawn subagents and which model to use for each task type. With Opus now ~5x Haiku (not 25x), the bigger cost lever is prompt caching - cache reads cost ~0.1x, so keeping early context stable saves more than any model downgrade.
 
 ---
 
@@ -360,16 +360,16 @@ When degradation is detected, the skill flags it in real time. You'll see a clea
 ### Starting a Session
 
 1. Open Claude Code in your project directory
-2. Claude reads CLAUDE.md automatically — budget zones, model switching, and tool efficiency rules are loaded
-3. Hooks are already active — no action needed
+2. Claude reads CLAUDE.md automatically - budget zones, model switching, and tool efficiency rules are loaded
+3. Hooks are already active - no action needed
 4. If continuing previous work: "Read TASK.md and PROGRESS.md and pick up where we left off"
 
 ### During a Session
 
-- **Tests/builds/linting run automatically filtered** — you'll notice shorter outputs
-- **Budget zones adapt silently** — Claude gets more selective as context fills
-- **Degradation detection watches in the background** — you'll get flagged if quality drops
-- **Model switching guides subagent usage** — cheap tasks go to Haiku, complex ones stay on Opus
+- **Tests/builds/linting run automatically filtered** - you'll notice shorter outputs
+- **Budget zones adapt silently** - Claude gets more selective as context fills
+- **Degradation detection watches in the background** - you'll get flagged if quality drops
+- **Model switching guides subagent usage** - cheap tasks go to Haiku, complex ones stay on Opus
 
 ### Ending a Session
 
@@ -397,7 +397,7 @@ Run `/context-engineer:diagnose` to check. The setup command checks for an exist
 
 ### "Context still fills up quickly on a large codebase"
 
-This is expected for large codebases — there's simply more code to process. The budget zones and model switching are working to extend your session, but you may need to use the fresh context pattern more frequently. Focus sessions on specific subsystems rather than the entire codebase.
+This is expected for large codebases - there's simply more code to process. The budget zones and model switching are working to extend your session, but you may need to use the fresh context pattern more frequently. Focus sessions on specific subsystems rather than the entire codebase.
 
 ### "I want to customize which commands trigger the hooks"
 
@@ -430,4 +430,4 @@ Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/sc
 
 - **Landing page:** [silvesterdivas.github.io/context-engineer](https://silvesterdivas.github.io/context-engineer/)
 - **GitHub:** [github.com/silvesterdivas/context-engineer](https://github.com/silvesterdivas/context-engineer)
-- **License:** MIT — free and open source
+- **License:** MIT - free and open source
