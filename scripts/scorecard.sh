@@ -209,6 +209,9 @@ if command -v jq >/dev/null 2>&1; then
     if [[ -n "$TRANSCRIPT" && -s "$TRANSCRIPT" ]]; then
       LAST_ASSISTANT=$(grep '"type":"assistant"' "$TRANSCRIPT" 2>/dev/null | tail -1)
       if [[ -n "$LAST_ASSISTANT" ]]; then
+        # Rates are per-model (read from the transcript) so Sonnet/Haiku
+        # sessions are not mispriced at Opus rates. Cache read = 0.1x input,
+        # cache write = 1.25x input. Unknown model falls back to Opus 4.8.
         STATS=$(echo "$LAST_ASSISTANT" | jq -r '
           .message.usage as $u
           | (($u.input_tokens // 0)) as $in
@@ -217,16 +220,22 @@ if command -v jq >/dev/null 2>&1; then
           | (($u.output_tokens // 0)) as $out
           | ($in + $cr + $cc) as $total
           | (if $total > 0 then (($cr * 100 / $total) | floor) else 0 end) as $cachepct
-          | (($in*5 + $cr*0.5 + $cc*6.25 + $out*25) / 1000000) as $cost
-          | "\($total) \($cachepct) \($cost)"' 2>/dev/null)
+          | (.message.model // "") as $model
+          | (if ($model|test("opus")) then {i:5,cr:0.5,cc:6.25,o:25,name:"Opus 4.8"}
+             elif ($model|test("sonnet")) then {i:3,cr:0.3,cc:3.75,o:15,name:"Sonnet 4.6"}
+             elif ($model|test("haiku")) then {i:1,cr:0.1,cc:1.25,o:5,name:"Haiku 4.5"}
+             else {i:5,cr:0.5,cc:6.25,o:25,name:"Opus 4.8"} end) as $r
+          | (($in*$r.i + $cr*$r.cr + $cc*$r.cc + $out*$r.o) / 1000000) as $cost
+          | [$total, $cachepct, $cost, $r.name] | @tsv' 2>/dev/null)
         if [[ -n "$STATS" ]]; then
-          T_TOTAL=$(echo "$STATS" | awk '{print $1}')
-          T_CACHE=$(echo "$STATS" | awk '{print $2}')
-          T_COST=$(echo "$STATS" | awk '{print $3}')
+          T_TOTAL=$(printf '%s' "$STATS" | cut -f1)
+          T_CACHE=$(printf '%s' "$STATS" | cut -f2)
+          T_COST=$(printf '%s' "$STATS" | cut -f3)
+          T_MODEL=$(printf '%s' "$STATS" | cut -f4)
           if [[ "${T_TOTAL:-0}" -gt 0 ]]; then
             T_K=$((T_TOTAL / 1000))
             COST_FMT=$(printf "%.2f" "$T_COST" 2>/dev/null || echo "$T_COST")
-            SESSION_LINE="  Session: ~${T_K}K ctx tokens, ${T_CACHE}% cached, est. \$${COST_FMT}/turn (Opus 4.8 rates)"
+            SESSION_LINE="  Session: ~${T_K}K ctx tokens, ${T_CACHE}% cached, est. \$${COST_FMT}/turn (${T_MODEL} rates)"
           fi
         fi
       fi

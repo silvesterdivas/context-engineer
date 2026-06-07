@@ -164,6 +164,18 @@ assert_contains "scorecard: renders the health scorecard" "$sc_out" "Health Scor
 assert_contains "scorecard: prints a score line"          "$sc_out" "Score:"
 assert_contains "scorecard: prints the token-savings line" "$sc_out" "Tokens saved"
 
+# scorecard: session cost is priced per model, not always at Opus rates
+fakehome=$(mktemp -d); projroot=$(mktemp -d)
+absroot=$(cd "$projroot" && pwd); encoded=$(printf '%s' "$absroot" | sed 's#[/.]#-#g')
+tdir="$fakehome/.claude/projects/$encoded"; mkdir -p "$tdir"
+printf '{"type":"assistant","message":{"model":"claude-sonnet-4-6","usage":{"input_tokens":100000,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"output_tokens":1000}}}\n' > "$tdir/t.jsonl"
+out=$(HOME="$fakehome" bash "$ROOT/scripts/scorecard.sh" "$projroot" 2>/dev/null)
+assert_contains "scorecard: Sonnet session priced at Sonnet rates" "$out" "Sonnet 4.6 rates"
+printf '{"type":"assistant","message":{"model":"claude-haiku-4-5","usage":{"input_tokens":100000,"cache_read_input_tokens":0,"cache_creation_input_tokens":0,"output_tokens":1000}}}\n' > "$tdir/t.jsonl"
+out=$(HOME="$fakehome" bash "$ROOT/scripts/scorecard.sh" "$projroot" 2>/dev/null)
+assert_contains "scorecard: Haiku session priced at Haiku rates" "$out" "Haiku 4.5 rates"
+rm -rf "$fakehome" "$projroot"
+
 echo "---------------------------"
 echo "passed: $PASS   failed: $FAIL"
 [ "$FAIL" -eq 0 ]
