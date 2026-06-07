@@ -445,6 +445,9 @@ Remove the corresponding entry from `hooks/hooks.json`.
 ### Adjust the 30-line threshold
 Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/scripts/filter-common.sh`.
 
+### See raw, unfiltered output
+Set `CONTEXT_ENGINEER_FILTER_OFF=1` to turn the output filters off entirely. Every filtered summary also prints this hint, so you can always get the full output back when a filter trims a line you needed.
+
 ### Add project-specific budget zone rules
 Run `/context-engineer:setup` then edit the generated section in your CLAUDE.md.
 

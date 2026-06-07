@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/filter-common.sh"
 
 match_command() {
   case "$1" in
-    *"npm test"*|*"npx jest"*|*"npx vitest"*|*"pytest"*|*"go test"*|*"cargo test"*|*"npm run test"*) return 0 ;;
+    *"npm test"*|*"npx jest"*|*"npx vitest"*|*"pytest"*|*"go test"*|*"cargo test"*|*"npm run test"*|*"bun test"*|*"deno test"*|*"phpunit"*|*"rspec"*) return 0 ;;
     *) return 1 ;;
   esac
 }

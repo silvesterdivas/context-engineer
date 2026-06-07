@@ -12,6 +12,9 @@ FILTER_MIN_LINES="${CONTEXT_ENGINEER_FILTER_MIN_LINES:-30}"
 run_filter() {
   local label="$1"
 
+  # Global off switch: skip filtering so raw tool output passes through.
+  case "${CONTEXT_ENGINEER_FILTER_OFF:-}" in 1|true|yes|on) exit 0 ;; esac
+
   # Bail if jq is not available
   command -v jq >/dev/null 2>&1 || exit 0
 
@@ -36,7 +39,7 @@ run_filter() {
   if [ -n "$filtered" ]; then
     jq -n --arg filtered "$filtered" --arg lines "$line_count" --arg label "$label" '{
       suppressOutput: true,
-      message: ("[token-saving] " + $label + " output filtered: " + $lines + " lines → summary\n" + $filtered)
+      message: ("[token-saving] " + $label + " output filtered: " + $lines + " lines → summary\n" + $filtered + "\n(set CONTEXT_ENGINEER_FILTER_OFF=1 for raw output)")
     }'
   fi
 }

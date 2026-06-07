@@ -81,6 +81,20 @@ assert_empty "build: non-matching command passes through" "$out"
 out=$(make_input "npm run build" "short output" | bash "$HOOKS/filter-build-output.sh")
 assert_empty "build: short output is not filtered" "$out"
 
+# escape hatch: CONTEXT_ENGINEER_FILTER_OFF disables filtering entirely
+out=$(make_input "npm run build" "$build_resp" | CONTEXT_ENGINEER_FILTER_OFF=1 bash "$HOOKS/filter-build-output.sh")
+assert_empty "build: CONTEXT_ENGINEER_FILTER_OFF=1 passes raw output through" "$out"
+
+# filtered output advertises the escape hatch
+out=$(make_input "npm run build" "$build_resp" | bash "$HOOKS/filter-build-output.sh")
+assert_contains "build: filtered output mentions the off switch" "$out" 'CONTEXT_ENGINEER_FILTER_OFF=1'
+
+# expanded matchers from the review
+out=$(make_input "bun test" "$test_resp" | bash "$HOOKS/filter-test-output.sh")
+assert_contains "test: bun test matcher fires" "$out" '[token-saving] Test'
+out=$(make_input "ruff check ." "$lint_resp" | bash "$HOOKS/filter-lint-output.sh")
+assert_contains "lint: ruff matcher fires" "$out" '[token-saving] Lint'
+
 # --- context-budget-warning.sh ---
 # 16 assistant turns (clears the 15-turn floor); last usage = 650k/1M = 65% -> YELLOW.
 tr_file="$(mktemp)"

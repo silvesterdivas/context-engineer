@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/filter-common.sh"
 
 match_command() {
   case "$1" in
-    *"npm run lint"*|*"npx eslint"*|*"npx prettier"*|*"stylelint"*|*"pylint"*|*"flake8"*|*"clippy"*|*"biome"*) return 0 ;;
+    *"npm run lint"*|*"npx eslint"*|*"npx prettier"*|*"stylelint"*|*"pylint"*|*"flake8"*|*"clippy"*|*"biome"*|*"ruff"*|*"oxlint"*) return 0 ;;
     *) return 1 ;;
   esac
 }
