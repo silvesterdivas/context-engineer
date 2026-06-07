@@ -6,7 +6,7 @@ Whether you're starting a brand-new project or adding context engineering to a c
 
 ## What Is Context Engineer?
 
-Context Engineer is an open-source plugin for Claude Code that ships 9 techniques to stop your AI coding assistant from wasting tokens on noise. It filters verbose output, adapts behavior as your context window fills up, catches degradation before it ruins your session, and routes tasks to the right model.
+Context Engineer is an open-source plugin for Claude Code that ships 10 techniques to stop your AI coding assistant from wasting tokens on noise. It filters verbose output, adapts behavior as your context window fills up, catches degradation before it ruins your session, and routes tasks to the right model.
 
 One install. Zero configuration. It just works.
 
@@ -41,9 +41,21 @@ claude plugin marketplace add silvesterdivas/context-engineer
 claude plugin install context-engineer@context-engineer-marketplace
 ```
 
-Done. The plugin is now installed at `~/.claude/plugins/marketplaces/context-engineer-marketplace/`.
+Done. The plugin installs under `~/.claude/plugins/` (the marketplace clone lives in `marketplaces/`; the runnable plugin is versioned under `cache/context-engineer-marketplace/context-engineer/<version>/`).
 
 The three token-saving hooks (test, build, lint output filters) are already active. Every time Claude Code runs a test suite, build command, or linter, the output gets filtered automatically - no setup needed.
+
+### Updating
+
+Context-engineer is a third-party marketplace, so updates are not automatic by default. When a new version ships, refresh and reinstall from inside Claude Code:
+
+```
+/plugin marketplace update context-engineer-marketplace
+/plugin install context-engineer@context-engineer-marketplace
+/reload-plugins
+```
+
+`/reload-plugins` applies the update in the current session. To update automatically on startup, run `/plugin`, open the Marketplaces tab, select context-engineer-marketplace, and toggle Enable auto-update.
 
 ---
 
@@ -85,7 +97,7 @@ Verify everything is wired up correctly:
 /context-engineer:diagnose
 ```
 
-This runs a health scorecard that checks 6 areas:
+This runs a health scorecard covering these areas (4 are scored; MCP hygiene and fresh-context are advisories):
 
 | Area | What It Checks |
 |------|---------------|
@@ -401,12 +413,12 @@ This is expected for large codebases - there's simply more code to process. The 
 
 ### "I want to customize which commands trigger the hooks"
 
-Edit the hook scripts directly at:
+To turn filtering off for a session, set `CONTEXT_ENGINEER_FILTER_OFF=1` (every filtered summary also prints this hint). To change which commands trigger a filter, edit the `match_command` matcher near the top of the relevant `hooks/scripts/filter-*.sh` in the installed plugin, under:
 ```
-~/.claude/plugins/marketplaces/context-engineer-marketplace/hooks/scripts/
+~/.claude/plugins/cache/context-engineer-marketplace/context-engineer/<version>/hooks/scripts/
 ```
 
-Each script has a pattern matcher at the top that determines which commands trigger it. Add or remove patterns as needed.
+Note that a plugin update replaces those files, so prefer the environment switches where they cover your need.
 
 ### "I want to change the 30-line threshold"
 
@@ -419,6 +431,7 @@ Set `CONTEXT_ENGINEER_FILTER_MIN_LINES`, or edit `FILTER_MIN_LINES` in `hooks/sc
 | What You Want | What to Run |
 |--------------|-------------|
 | Install the plugin | `claude plugin marketplace add silvesterdivas/context-engineer` then `claude plugin install context-engineer@context-engineer-marketplace` |
+| Update the plugin | `/plugin marketplace update context-engineer-marketplace` then `/plugin install context-engineer@context-engineer-marketplace` then `/reload-plugins` |
 | Set up a project | `/context-engineer:setup` |
 | Check your setup | `/context-engineer:diagnose` |
 | Hand off to a new session | `/context-engineer:fresh-context "task description"` |
