@@ -2,7 +2,7 @@
 # Context Budget Warning Hook (PostToolUse)
 # Uses real token counts from the transcript to detect context budget zones.
 # Falls back to heuristic scoring when token data is unavailable.
-# Fires once per zone transition — no spam.
+# Fires once per zone transition, no spam.
 # Creates a sentinel file on RED zone to trigger auto-handoff.
 
 set -euo pipefail
@@ -50,7 +50,7 @@ CACHE_PCT=0
 LAST_USAGE=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 | \
   jq '(.message.usage.input_tokens // 0) + (.message.usage.cache_read_input_tokens // 0) + (.message.usage.cache_creation_input_tokens // 0)' 2>/dev/null) || LAST_USAGE=0
 
-# Cache-read tokens (served at ~0.1x input cost) — surfaced as a savings signal.
+# Cache-read tokens (served at ~0.1x input cost), surfaced as a savings signal.
 CACHE_READ=$(grep '"type":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 | \
   jq '(.message.usage.cache_read_input_tokens // 0)' 2>/dev/null) || CACHE_READ=0
 [ -n "$CACHE_READ" ] || CACHE_READ=0
@@ -154,13 +154,13 @@ fi
 
 case "$ZONE" in
   YELLOW)
-    MSG="YELLOW ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Be selective: prefer Grep over Read, summarize before processing large files."
+    MSG="YELLOW ZONE - Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Be selective: prefer Grep over Read, summarize before processing large files."
     ;;
   ORANGE)
-    MSG="ORANGE ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
+    MSG="ORANGE ZONE - Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Conserve aggressively: targeted searches only, no full file reads. Consider wrapping up soon."
     ;;
   RED)
-    MSG="RED ZONE — Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Context budget exhausted. Stop starting new work. Auto-handoff activated — generate TASK.md + PROGRESS.md now, then suggest a fresh conversation."
+    MSG="RED ZONE - Context: ${CONTEXT_PCT}% ${BREAKDOWN}. Context budget exhausted. Stop starting new work. Auto-handoff activated: generate TASK.md + PROGRESS.md now, then suggest a fresh conversation."
     ;;
   *)
     exit 0

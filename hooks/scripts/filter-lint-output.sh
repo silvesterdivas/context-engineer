@@ -2,45 +2,26 @@
 # Token-saving filter for linter output (eslint, prettier, stylelint, etc.)
 # Reduces verbose lint output to error count + top issues only.
 
-# Bail if jq is not available
-command -v jq >/dev/null 2>&1 || exit 0
+source "$(dirname "${BASH_SOURCE[0]}")/filter-common.sh"
 
-INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null) || exit 0
-RESPONSE=$(echo "$INPUT" | jq -r '.tool_response // ""' 2>/dev/null) || exit 0
+match_command() {
+  case "$1" in
+    *"npm run lint"*|*"npx eslint"*|*"npx prettier"*|*"stylelint"*|*"pylint"*|*"flake8"*|*"clippy"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
-# Only filter lint commands
-case "$COMMAND" in
-  *"npm run lint"*|*"npx eslint"*|*"npx prettier"*|*"stylelint"*|*"pylint"*|*"flake8"*|*"clippy"*)
-    ;;
-  *)
-    exit 0
-    ;;
-esac
+build_filtered() {
+  local response="$1" filtered="" issues summary
+  issues=$(echo "$response" | grep -E "error|warning" | grep -E "^\s*/|^\s*[0-9]+:" | head -15)
+  summary=$(echo "$response" | grep -E "✖|problems?|errors?.*warnings?|[0-9]+ error|All files pass" | tail -3)
 
-# Skip short output
-LINE_COUNT=$(echo "$RESPONSE" | wc -l | tr -d ' ')
-if [ "$LINE_COUNT" -lt 30 ]; then
-  exit 0
-fi
-
-# Extract error lines (file:line:col pattern) and summary
-ISSUES=$(echo "$RESPONSE" | grep -E "error|warning" | grep -E "^\s*/|^\s*[0-9]+:" | head -15)
-SUMMARY=$(echo "$RESPONSE" | grep -E "✖|problems?|errors?.*warnings?|[0-9]+ error|All files pass" | tail -3)
-
-# Build filtered output
-FILTERED=""
-[ -n "$ISSUES" ] && FILTERED="Top issues:
-$ISSUES"
-[ -n "$SUMMARY" ] && FILTERED="${FILTERED:+$FILTERED
+  [ -n "$issues" ] && filtered="Top issues:
+$issues"
+  [ -n "$summary" ] && filtered="${filtered:+$filtered
 ---
-}$SUMMARY"
+}$summary"
+  printf '%s' "$filtered"
+}
 
-if [ -n "$FILTERED" ]; then
-  jq -n --arg filtered "$FILTERED" --arg lines "$LINE_COUNT" '{
-    suppressOutput: true,
-    message: ("[token-saving] Lint output filtered: " + $lines + " lines → summary\n" + $filtered)
-  }'
-fi
-
-exit 0
+run_filter "Lint"
