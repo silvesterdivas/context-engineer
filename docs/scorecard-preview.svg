@@ -30,7 +30,7 @@
 
     <!-- Header box -->
     <text class="mono cyan" font-size="13">┌────────────────────────────────────────────────────────────┐</text>
-    <text y="20" class="mono cyan" font-size="13">│ <tspan class="bold">context-engineer</tspan><tspan class="white"> v1.1.0</tspan>  <tspan class="dim">·</tspan>  <tspan class="white">Health Scorecard</tspan>              │</text>
+    <text y="20" class="mono cyan" font-size="13">│ <tspan class="bold">context-engineer</tspan><tspan class="white"> v2.0.0</tspan>  <tspan class="dim">·</tspan>  <tspan class="white">Health Scorecard</tspan>              │</text>
     <text y="40" class="mono cyan" font-size="13">└────────────────────────────────────────────────────────────┘</text>
 
     <!-- Check rows -->

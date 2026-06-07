@@ -381,6 +381,7 @@ Copy the agent files to your project's `.claude/agents/` directory and modify th
 - **Refactor:** The three output filters (test, build, lint) now share a single sourced scaffold (`hooks/scripts/filter-common.sh`) instead of duplicating it three times. Behavior is unchanged and verified byte-for-byte.
 - **New:** Filter line-count threshold is centralized and overridable via `CONTEXT_ENGINEER_FILTER_MIN_LINES` (default 30).
 - **Fix:** Removed em dashes from the budget hook's zone messages to match the repo style rule.
+- **Docs:** Refreshed the scorecard preview image version to v2.0.0.
 
 ### v1.2.1
 
